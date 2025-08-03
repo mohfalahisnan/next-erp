@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/navigation/theme-toggle"
 import { IconMoon, IconSun, IconDeviceDesktop } from "@tabler/icons-react"
 
 export function ThemeDemo() {

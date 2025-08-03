@@ -18,6 +18,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 
 type NavItem = {
   title: string
@@ -93,10 +94,10 @@ export function NavMain({
                                {subItem.items?.map((subSubItem) => (
                                  <SidebarMenuSubItem key={subSubItem.title}>
                                    <SidebarMenuSubButton asChild>
-                                     <a href={subSubItem.url}>
+                                     <Link href={subSubItem.url}>
                                        {subSubItem.icon && <subSubItem.icon />}
                                        <span>{subSubItem.title}</span>
-                                     </a>
+                                     </Link>
                                    </SidebarMenuSubButton>
                                  </SidebarMenuSubItem>
                                ))}
@@ -110,10 +111,10 @@ export function NavMain({
                    return (
                      <SidebarMenuSubItem key={subItem.title}>
                        <SidebarMenuSubButton asChild>
-                         <a href={subItem.url}>
+                         <Link href={subItem.url}>
                            {subItem.icon && <subItem.icon />}
                            <span>{subItem.title}</span>
-                         </a>
+                         </Link>
                        </SidebarMenuSubButton>
                      </SidebarMenuSubItem>
                    )
@@ -128,10 +129,10 @@ export function NavMain({
     return (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton tooltip={item.title} asChild>
-          <a href={item.url}>
+          <Link href={item.url}>
             {item.icon && <item.icon />}
             <span>{item.title}</span>
-          </a>
+          </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
     )

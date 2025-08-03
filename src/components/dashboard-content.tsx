@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IconRefresh, IconSearch } from "@tabler/icons-react"
 import { TIME_RANGES, CHART_TYPES } from "@/hooks/use-dashboard-filters"
-import { ThemeDemo } from "@/components/theme-demo"
+import { ThemeDemo } from "@/components/navigation/theme-demo"
 
 export function DashboardContent() {
   const {

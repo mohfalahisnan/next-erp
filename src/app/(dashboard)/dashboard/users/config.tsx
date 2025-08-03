@@ -10,7 +10,7 @@ export const config: TableConfig<User> = {
 			depth: 2,
 			limit: 10,
 		},
-		model: "users",
+		model: "user",
 	},
 	columns: [
 		{

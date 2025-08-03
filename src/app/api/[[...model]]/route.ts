@@ -4,7 +4,7 @@ import { createApiHandler } from "@/lib/api-handler";
 import { createApiError } from "@/lib/api-schemas";
 
 // Valid model names for Drizzle
-const validModels = ['users', 'departments', 'roles', 'projects'];
+const validModels = ['user', 'department', 'role', 'project'];
 
 function isValidModelName(modelName: string): boolean {
 	return validModels.includes(modelName.toLowerCase());

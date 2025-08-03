@@ -2,26 +2,26 @@ import { relations } from "drizzle-orm";
 import { departments } from "./departments";
 import { projects } from "./projects";
 import { roles } from "./roles";
-import { users } from "./users";
+import { user } from "./auth";
 
 // Relations
 export const departmentsRelations = relations(departments, ({ one, many }) => ({
-	manager: one(users, {
+	manager: one(user, {
 		fields: [departments.managerId],
-		references: [users.id],
+		references: [user.id],
 	}),
-	users: many(users),
+	users: many(user),
 	projects: many(projects),
 	roles: many(roles),
 }));
 
-export const usersRelations = relations(users, ({ one, many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
 	department: one(departments, {
-		fields: [users.departmentId],
+		fields: [user.departmentId],
 		references: [departments.id],
 	}),
 	role: one(roles, {
-		fields: [users.roleId],
+		fields: [user.roleId],
 		references: [roles.id],
 	}),
 	managedDepartments: many(departments),
@@ -33,7 +33,7 @@ export const rolesRelations = relations(roles, ({ one, many }) => ({
 		fields: [roles.departmentId],
 		references: [departments.id],
 	}),
-	users: many(users),
+	users: many(user),
 }));
 
 export const projectsRelations = relations(projects, ({ one }) => ({
@@ -41,8 +41,8 @@ export const projectsRelations = relations(projects, ({ one }) => ({
 		fields: [projects.departmentId],
 		references: [departments.id],
 	}),
-	manager: one(users, {
+	manager: one(user, {
 		fields: [projects.managerId],
-		references: [users.id],
+		references: [user.id],
 	}),
 }));

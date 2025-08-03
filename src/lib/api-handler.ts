@@ -15,7 +15,7 @@ import type { PgTable } from "drizzle-orm/pg-core";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "./db";
-import { departments, projects, roles, users } from "./db/schemas";
+import { departments, projects, roles, user as users } from "./db/schemas";
 import {
 	departmentCreateSchema,
 	departmentUpdateSchema,
@@ -37,6 +37,12 @@ interface ModelConfig {
 
 // Model registry
 const modelRegistry: Record<string, ModelConfig> = {
+	user: {
+		table: users,
+		createSchema: userCreateSchema,
+		updateSchema: userUpdateSchema,
+		relations: ["department"],
+	},
 	users: {
 		table: users,
 		createSchema: userCreateSchema,
