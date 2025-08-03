@@ -8,8 +8,9 @@ import DataTableFilters, { type FilterOptions } from "./data-table-filters";
 import DataTableSearch from "./data-table-search";
 import { useDataTable } from "./data-table-context";
 import DataTableBulkActions from "./data-table-bulk-actions";
-import { config } from "@/app/dashboard/config";
+
 import DataTableColumnSelector from "./data-table-column-selector";
+import { IconRefresh } from "@tabler/icons-react";
 
 export interface DataTableHeaderProps {
 	table: Table<any>;
@@ -36,7 +37,7 @@ function DataTableHeader({
 	showCreateButton = true,
 	createButtonLabel = "Create New",
 }: DataTableHeaderProps) {
-	const { openCreateForm } = useDataTable();
+	const { openCreateForm, refreshData,tableConfig } = useDataTable();
 	const globalFilter = table.getState().globalFilter as string;
 	const dateRangeFilter = table.getColumn(dateColumnId)?.getFilterValue();
 
@@ -80,20 +81,29 @@ function DataTableHeader({
 						</Button>
 					)}
 				</div>
-				{showCreateButton && (
-					<Button onClick={openCreateForm} className="ml-2">
-						<Plus className="h-4 w-4 mr-2" />
-						{createButtonLabel}
+				<div className="flex items-center gap-2">
+					<Button 
+						variant="outline"
+						onClick={refreshData}
+						className="px-2"
+						title="Refresh data"
+					>
+						<IconRefresh className="h-4 w-4" />
 					</Button>
-				)}
-			<DataTableColumnSelector table={table} />
+					{showCreateButton && (
+						<Button onClick={openCreateForm}>
+							<Plus className="h-4 w-4 mr-2" />
+							{createButtonLabel}
+						</Button>
+					)}
+					<DataTableColumnSelector table={table} />
+				</div>
 			</div>
-				
 
-							<DataTableBulkActions
-					table={table}
-					bulkActions={config.bulkActions}
-				/>
+			<DataTableBulkActions
+				table={table}
+				bulkActions={tableConfig.bulkActions}
+			/>
 		</div>
 	);
 }

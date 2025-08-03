@@ -8,7 +8,6 @@ import { config } from "./config";
 
 function TableDemo() {
 	return (
-
 			<div>
 				<Suspense fallback={<div>Loading...</div>}>
 					<DynamicDataTable {...config} />

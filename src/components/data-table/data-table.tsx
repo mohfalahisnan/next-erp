@@ -589,78 +589,78 @@ function DataTableContent<T>() {
 				{...tableConfig.headerProps}
 			/>
 			
-			<div className="overflow-hidden rounded-md border">
-				<Table>
-					<TableHeader>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<TableRow key={headerGroup.id} className="bg-accent">
-								{headerGroup.headers.map((header) => {
-									return (
-										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
-													)}
-										</TableHead>
-									);
-								})}
-							</TableRow>
-						))}
-					</TableHeader>
-					<TableBody>
-						{query.isLoading ? (
-							Array.from({ length: pagination.pageSize }).map((_, index) => (
-								<TableRow key={index}>
-									{Array.from({ length: finalColumns.length }).map(
-										(_, cellIndex) => (
-											<TableCell key={cellIndex} className="h-12">
-												<div className="flex items-center space-x-2">
-													<div className="h-4 w-full animate-pulse rounded bg-muted" />
-												</div>
+			<div className="rounded-md border">
+					<Table containerClassName="h-fit max-h-[calc(100vh-18.5rem)] overflow-y-auto relative">
+						<TableHeader className="sticky top-0">
+							{table.getHeaderGroups().map((headerGroup) => (
+								<TableRow key={headerGroup.id} className="bg-accent">
+									{headerGroup.headers.map((header) => {
+										return (
+											<TableHead key={header.id} className="bg-accent">
+												{header.isPlaceholder
+													? null
+													: flexRender(
+															header.column.columnDef.header,
+															header.getContext(),
+														)}
+											</TableHead>
+										);
+									})}
+								</TableRow>
+							))}
+						</TableHeader>
+						<TableBody>
+							{query.isLoading ? (
+								Array.from({ length: pagination.pageSize }).map((_, index) => (
+									<TableRow key={index}>
+										{Array.from({ length: finalColumns.length }).map(
+											(_, cellIndex) => (
+												<TableCell key={cellIndex} className="h-12">
+													<div className="flex items-center space-x-2">
+														<div className="h-4 w-full animate-pulse rounded bg-muted" />
+													</div>
+												</TableCell>
+											),
+										)}
+									</TableRow>
+								))
+							) : query.isError ? (
+								<TableRow>
+									<TableCell
+										colSpan={finalColumns.length}
+										className="h-24 text-center text-red-500"
+									>
+										Error loading data. Please try again.
+									</TableCell>
+								</TableRow>
+							) : table.getRowModel().rows?.length ? (
+								table.getRowModel().rows.map((row) => (
+									<TableRow
+										key={row.id}
+										data-state={row.getIsSelected() && "selected"}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell key={cell.id}>
+												{flexRender(
+													cell.column.columnDef.cell,
+													cell.getContext(),
+												)}
 											</TableCell>
-										),
-									)}
+										))}
+									</TableRow>
+								))
+							) : (
+								<TableRow>
+									<TableCell
+										colSpan={finalColumns.length}
+										className="h-24 text-center"
+									>
+										No results.
+									</TableCell>
 								</TableRow>
-							))
-						) : query.isError ? (
-							<TableRow>
-								<TableCell
-									colSpan={finalColumns.length}
-									className="h-24 text-center text-red-500"
-								>
-									Error loading data. Please try again.
-								</TableCell>
-							</TableRow>
-						) : table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
-											{flexRender(
-												cell.column.columnDef.cell,
-												cell.getContext(),
-											)}
-										</TableCell>
-									))}
-								</TableRow>
-							))
-						) : (
-							<TableRow>
-								<TableCell
-									colSpan={finalColumns.length}
-									className="h-24 text-center"
-								>
-									No results.
-								</TableCell>
-							</TableRow>
-						)}
-					</TableBody>
-				</Table>
+							)}	
+						</TableBody>
+					</Table>
 			</div>
 			<DataTablePagination
 				table={table}
