@@ -46,7 +46,7 @@ export const menuConfig = {
       items: [
         {
           title: "Storage Locations",
-          url: "/warehouse/locations",
+          url: "/warehouses",
           icon: IconBuilding,
         },
         {

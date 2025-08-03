@@ -26,6 +26,7 @@ export const userRelations = relations(user, ({ one, many }) => ({
 	}),
 	managedDepartments: many(departments),
 	managedProjects: many(projects),
+
 }));
 
 export const rolesRelations = relations(roles, ({ one, many }) => ({

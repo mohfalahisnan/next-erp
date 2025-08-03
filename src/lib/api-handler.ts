@@ -15,7 +15,28 @@ import type { PgTable } from "drizzle-orm/pg-core";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "./db";
-import { departments, projects, roles, user as users } from "./db/schemas";
+import { 
+	departments, 
+	projects, 
+	roles, 
+	user,
+	// Warehouse management tables
+	warehouses,
+	productCategories,
+	suppliers,
+	products,
+	productVariants,
+	inventory,
+	inventoryMovements,
+	transfers,
+	transferItems,
+	customers,
+	customerAddresses,
+	carriers,
+	orders,
+	orderItems,
+	shipments
+} from "./db/schemas";
 import {
 	departmentCreateSchema,
 	departmentUpdateSchema,
@@ -27,24 +48,23 @@ import {
 	userUpdateSchema,
 } from "./db/validations";
 
+// Create basic schemas for warehouse tables (using table inference)
+const createBasicSchema = (_data:any) => z.object({}).passthrough();
+const updateBasicSchema = (_data:any) => z.object({}).passthrough().partial();
+
 // Model configuration
 interface ModelConfig {
 	table: PgTable;
 	createSchema: any;
 	updateSchema: any;
 	relations?: string[];
+	relationMappings?: Record<string, string[]>;
 }
 
 // Model registry
-const modelRegistry: Record<string, ModelConfig> = {
+export const modelRegistry: Record<string, ModelConfig> = {
 	user: {
-		table: users,
-		createSchema: userCreateSchema,
-		updateSchema: userUpdateSchema,
-		relations: ["department"],
-	},
-	users: {
-		table: users,
+		table: user,
 		createSchema: userCreateSchema,
 		updateSchema: userUpdateSchema,
 		relations: ["department"],
@@ -66,6 +86,133 @@ const modelRegistry: Record<string, ModelConfig> = {
 		createSchema: projectCreateSchema,
 		updateSchema: projectUpdateSchema,
 		relations: ["department", "manager"],
+	},
+	// Warehouse Management Tables
+	warehouses: {
+		table: warehouses,
+		createSchema: createBasicSchema(warehouses),
+		updateSchema: updateBasicSchema(warehouses),
+		relations: ["manager", "inventory", "transfers", "orders"],
+	},
+	productCategories: {
+		table: productCategories,
+		createSchema: createBasicSchema(productCategories),
+		updateSchema: updateBasicSchema(productCategories),
+		relations: ["products"],
+	},
+	"product-categories": {
+		table: productCategories,
+		createSchema: createBasicSchema(productCategories),
+		updateSchema: updateBasicSchema(productCategories),
+		relations: ["products"],
+	},
+	suppliers: {
+		table: suppliers,
+		createSchema: createBasicSchema(suppliers),
+		updateSchema: updateBasicSchema(suppliers),
+		relations: ["products"],
+	},
+	products: {
+		table: products,
+		createSchema: createBasicSchema(products),
+		updateSchema: updateBasicSchema(products),
+		relations: ["category", "supplier", "variants"],
+	},
+	productVariants: {
+		table: productVariants,
+		createSchema: createBasicSchema(productVariants),
+		updateSchema: updateBasicSchema(productVariants),
+		relations: ["product", "inventory"],
+	},
+	"product-variants": {
+		table: productVariants,
+		createSchema: createBasicSchema(productVariants),
+		updateSchema: updateBasicSchema(productVariants),
+		relations: ["product", "inventory"],
+	},
+	inventory: {
+		table: inventory,
+		createSchema: createBasicSchema(inventory),
+		updateSchema: updateBasicSchema(inventory),
+		relations: ["productVariant", "warehouse", "movements"],
+	},
+	inventoryMovements: {
+		table: inventoryMovements,
+		createSchema: createBasicSchema(inventoryMovements),
+		updateSchema: updateBasicSchema(inventoryMovements),
+		relations: ["inventory", "user"],
+	},
+	"inventory-movements": {
+		table: inventoryMovements,
+		createSchema: createBasicSchema(inventoryMovements),
+		updateSchema: updateBasicSchema(inventoryMovements),
+		relations: ["inventory", "user"],
+	},
+	transfers: {
+		table: transfers,
+		createSchema: createBasicSchema(transfers),
+		updateSchema: updateBasicSchema(transfers),
+		relations: ["fromWarehouse", "toWarehouse", "items", "requestedBy", "approvedBy"],
+	},
+	transferItems: {
+		table: transferItems,
+		createSchema: createBasicSchema(transferItems),
+		updateSchema: updateBasicSchema(transferItems),
+		relations: ["transfer", "productVariant"],
+	},
+	"transfer-items": {
+		table: transferItems,
+		createSchema: createBasicSchema(transferItems),
+		updateSchema: updateBasicSchema(transferItems),
+		relations: ["transfer", "productVariant"],
+	},
+	customers: {
+		table: customers,
+		createSchema: createBasicSchema(customers),
+		updateSchema: updateBasicSchema(customers),
+		relations: ["addresses", "orders"],
+	},
+	customerAddresses: {
+		table: customerAddresses,
+		createSchema: createBasicSchema(customerAddresses),
+		updateSchema: updateBasicSchema(customerAddresses),
+		relations: ["customer"],
+	},
+	"customer-addresses": {
+		table: customerAddresses,
+		createSchema: createBasicSchema(customerAddresses),
+		updateSchema: updateBasicSchema(customerAddresses),
+		relations: ["customer"],
+	},
+	carriers: {
+		table: carriers,
+		createSchema: createBasicSchema(carriers),
+		updateSchema: updateBasicSchema(carriers),
+		relations: ["shipments"],
+	},
+	orders: {
+		table: orders,
+		createSchema: createBasicSchema(orders),
+		updateSchema: updateBasicSchema(orders),
+		relations: ["customer", "warehouse", "items", "shipments"],
+	},
+	orderItems: {
+		table: orderItems,
+		createSchema: createBasicSchema(orderItems),
+		updateSchema: updateBasicSchema(orderItems),
+		relations: ["order", "productVariant"],
+	},
+	"order-items": {
+		table: orderItems,
+		createSchema: createBasicSchema(orderItems),
+		updateSchema: updateBasicSchema(orderItems),
+		relations: ["order", "productVariant"],
+	},
+	shipments: {
+		table: shipments,
+		createSchema: createBasicSchema(shipments),
+		updateSchema: updateBasicSchema(shipments),
+		relations: ["order", "carrier", "warehouse"],
 	},
 };
 
@@ -309,6 +456,87 @@ function buildOrderBy(table: PgTable, sort?: string, order?: string) {
 }
 
 // Helper function to build relations query
+// Dynamic relation mapping for nested queries
+const relationMappings: Record<string, Record<string, string[]>> = {
+	users: {
+		department: ["manager", "projects"],
+		role: ["department"]
+	},
+	departments: {
+		manager: ["role"],
+		users: ["role"],
+		projects: ["manager"]
+	},
+	projects: {
+		department: ["manager"],
+		manager: ["department", "role"]
+	},
+	roles: {
+		department: ["manager"],
+		users: ["department"]
+	},
+	warehouses: {
+		manager: ["department", "role"],
+		inventory: ["productVariant"],
+		transfers: ["items"],
+		orders: ["customer", "items"]
+	},
+	products: {
+		category: [],
+		supplier: [],
+		variants: ["inventory"]
+	},
+	productVariants: {
+		product: ["category", "supplier"],
+		inventory: ["warehouse"]
+	},
+	inventory: {
+		productVariant: ["product"],
+		warehouse: ["manager"],
+		movements: ["user"]
+	},
+	inventoryMovements: {
+		inventory: ["productVariant", "warehouse"],
+		user: ["department", "role"]
+	},
+	transfers: {
+		fromWarehouse: ["manager"],
+		toWarehouse: ["manager"],
+		items: ["productVariant"],
+		requestedBy: ["department", "role"],
+		approvedBy: ["department", "role"]
+	},
+	transferItems: {
+		transfer: ["fromWarehouse", "toWarehouse"],
+		productVariant: ["product"]
+	},
+	customers: {
+		addresses: [],
+		orders: ["warehouse", "items"]
+	},
+	customerAddresses: {
+		customer: ["orders"]
+	},
+	carriers: {
+		shipments: ["order", "warehouse"]
+	},
+	orders: {
+		customer: ["addresses"],
+		warehouse: ["manager"],
+		items: ["productVariant"],
+		shipments: ["carrier"]
+	},
+	orderItems: {
+		order: ["customer", "warehouse"],
+		productVariant: ["product"]
+	},
+	shipments: {
+		order: ["customer", "items"],
+		carrier: [],
+		warehouse: ["manager"]
+	}
+};
+
 function buildRelationsQuery(
 	modelName: string,
 	populate?: string,
@@ -318,108 +546,85 @@ function buildRelationsQuery(
 
 	const relations: Record<string, any> = {};
 	const populateFields = populate.split(",").map((field) => field.trim());
+	const modelConfig = modelRegistry[modelName];
+	
+	if (!modelConfig || !modelConfig.relations) {
+		return {};
+	}
+
+	// Use model-specific relation mappings if available, otherwise use global mappings
+	const currentRelationMappings = modelConfig.relationMappings || relationMappings[modelName] || {};
 
 	for (const field of populateFields) {
-		if (modelName === "users") {
-			if (field === "department") {
-				relations.department =
-					depth > 1
-						? {
-								with: {
-									manager: true,
-									projects: depth > 2,
-								},
+		// Check if the field is a valid relation for this model
+		if (modelConfig.relations.includes(field)) {
+			if (depth > 1) {
+				// Get nested relations for this field from the mapping
+				const nestedRelations = currentRelationMappings[field] || [];
+				
+				if (nestedRelations.length > 0) {
+					const withClause: Record<string, any> = {};
+					
+					for (const nestedField of nestedRelations) {
+						// Recursively build nested relations for deeper levels
+						if (depth > 2) {
+							// Try to get the target model for this nested field
+							const targetModelName = getTargetModelName(field, nestedField);
+							if (targetModelName && relationMappings[targetModelName]?.[nestedField]) {
+								const deeperRelations = relationMappings[targetModelName][nestedField];
+								if (deeperRelations.length > 0) {
+									const deepWithClause: Record<string, any> = {};
+									for (const deepField of deeperRelations) {
+										deepWithClause[deepField] = true;
+									}
+									withClause[nestedField] = { with: deepWithClause };
+								} else {
+									withClause[nestedField] = true;
+								}
+							} else {
+								withClause[nestedField] = true;
 							}
-						: true;
-			}
-			if (field === "role") {
-				relations.role =
-					depth > 1
-						? {
-								with: {
-									department: true,
-								},
-							}
-						: true;
-			}
-		} else if (modelName === "departments") {
-			if (field === "manager") {
-				relations.manager =
-					depth > 1
-						? {
-								with: {
-									role: true,
-								},
-							}
-						: true;
-			}
-			if (field === "users") {
-				relations.users =
-					depth > 1
-						? {
-								with: {
-									role: true,
-								},
-							}
-						: true;
-			}
-			if (field === "projects") {
-				relations.projects =
-					depth > 1
-						? {
-								with: {
-									manager: true,
-								},
-							}
-						: true;
-			}
-		} else if (modelName === "projects") {
-			if (field === "department") {
-				relations.department =
-					depth > 1
-						? {
-								with: {
-									manager: true,
-								},
-							}
-						: true;
-			}
-			if (field === "manager") {
-				relations.manager =
-					depth > 1
-						? {
-								with: {
-									department: true,
-									role: true,
-								},
-							}
-						: true;
-			}
-		} else if (modelName === "roles") {
-			if (field === "department") {
-				relations.department =
-					depth > 1
-						? {
-								with: {
-									manager: true,
-								},
-							}
-						: true;
-			}
-			if (field === "users") {
-				relations.users =
-					depth > 1
-						? {
-								with: {
-									department: true,
-								},
-							}
-						: true;
+						} else {
+							withClause[nestedField] = true;
+						}
+					}
+					
+					relations[field] = { with: withClause };
+				} else {
+					relations[field] = true;
+				}
+			} else {
+				relations[field] = true;
 			}
 		}
 	}
 
 	return Object.keys(relations).length > 0 ? { with: relations } : {};
+}
+
+// Helper function to determine target model name for nested relations
+function getTargetModelName(parentField: string, nestedField: string): string | null {
+	// Simple mapping for common relation patterns
+	const fieldToModelMap: Record<string, string> = {
+		manager: "users",
+		user: "users",
+		users: "users",
+		department: "departments",
+		role: "roles",
+		warehouse: "warehouses",
+		product: "products",
+		productVariant: "productVariants",
+		category: "productCategories",
+		supplier: "suppliers",
+		customer: "customers",
+		carrier: "carriers",
+		order: "orders",
+		transfer: "transfers",
+		inventory: "inventory",
+		shipment: "shipments"
+	};
+	
+	return fieldToModelMap[parentField] || null;
 }
 
 // Generic API handler

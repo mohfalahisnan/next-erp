@@ -1,10 +1,10 @@
 import { StatusCodes } from "http-status-codes";
 import { type NextRequest, NextResponse } from "next/server";
-import { createApiHandler } from "@/lib/api-handler";
+import { createApiHandler, modelRegistry } from "@/lib/api-handler";
 import { createApiError } from "@/lib/api-schemas";
 
 // Valid model names for Drizzle
-const validModels = ['user', 'department', 'role', 'project'];
+const validModels = Object.keys(modelRegistry).map((key) => key.toLowerCase());
 
 function isValidModelName(modelName: string): boolean {
 	return validModels.includes(modelName.toLowerCase());

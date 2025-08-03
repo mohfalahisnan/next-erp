@@ -16,43 +16,67 @@ Project warehouse_management {
 
 // User Management (from existing auth system)
 Table user {
-  id uuid [pk, default: `gen_random_uuid()`]
-  name varchar(255)
-  email varchar(255) [unique, not null]
-  emailVerified timestamp
-  image varchar(255)
-  password varchar(255)
-  roleId uuid [ref: > roles.id]
-  departmentId uuid [ref: > departments.id]
-  employeeId varchar(50) [unique]
-  status varchar(20) [default: 'active']
-  hireDate date
-  position varchar(100)
-  salary decimal(10,2)
-  phone varchar(20)
-  address text
+  id text [pk]
+  name text [not null]
+  email text [unique, not null]
+  emailVerified boolean [default: false]
+  image text
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
+  roleId uuid [ref: > roles.id]
+  status varchar(20) [default: 'Active']
+  departmentId uuid [ref: > departments.id]
+  position text
+  salary decimal(10,2)
+  hireDate timestamp
+  phone text
+  address text
+  lastLogin timestamp
   
   Note: 'Extended user table with employee information'
 }
 
 Table roles {
   id uuid [pk, default: `gen_random_uuid()`]
-  name varchar(50) [unique, not null]
+  name text [not null]
   description text
-  permissions json
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  permissions text[]
+  department_id uuid
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  Note: 'User roles and permissions'
 }
 
 Table departments {
   id uuid [pk, default: `gen_random_uuid()`]
-  name varchar(100) [unique, not null]
+  name text [not null]
   description text
-  managerId uuid [ref: > user.id]
-  createdAt timestamp [default: `now()`]
-  updatedAt timestamp [default: `now()`]
+  budget decimal(12,2)
+  manager_id uuid
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  Note: 'Company departments'
+}
+
+Table projects {
+  id uuid [pk, default: `gen_random_uuid()`]
+  name text [not null]
+  description text
+  status varchar(20) [default: 'Planning', note: 'Planning, In Progress, Completed, On Hold, Cancelled']
+  priority varchar(20) [default: 'Medium', note: 'Low, Medium, High, Critical']
+  start_date timestamp [not null]
+  end_date timestamp
+  budget decimal(12,2)
+  department_id uuid
+  manager_id uuid
+  progress integer [default: 0]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  Note: 'Company projects'
 }
 
 // Warehouse Management Tables
@@ -67,7 +91,7 @@ Table warehouses {
   country varchar(50)
   phone varchar(20)
   email varchar(100)
-  manager_id uuid [ref: > user.id]
+  manager_id text [ref: > user.id]
   capacity integer
   is_active boolean [default: true]
   created_at timestamp [default: `now()`]
@@ -177,7 +201,7 @@ Table inventory_movements {
   reference_type varchar(50) [note: 'PURCHASE, SALE, TRANSFER, ADJUSTMENT']
   reference_id uuid
   notes text
-  performed_by uuid [ref: > user.id]
+  performed_by text [ref: > user.id]
   created_at timestamp [default: `now()`]
   
   indexes {
@@ -196,8 +220,8 @@ Table transfers {
   from_warehouse_id uuid [ref: > warehouses.id, not null]
   to_warehouse_id uuid [ref: > warehouses.id, not null]
   status varchar(20) [default: 'PENDING', note: 'PENDING, APPROVED, IN_TRANSIT, COMPLETED, CANCELLED']
-  requested_by uuid [ref: > user.id]
-  approved_by uuid [ref: > user.id]
+  requested_by text [ref: > user.id]
+  approved_by text [ref: > user.id]
   shipped_at timestamp
   received_at timestamp
   notes text
@@ -246,6 +270,24 @@ Table customers {
   Note: 'Customer information for orders'
 }
 
+Table customer_addresses {
+  id uuid [pk, default: `gen_random_uuid()`]
+  customer_id uuid [ref: > customers.id, not null]
+  address_type varchar(20) [default: 'billing', note: 'billing, shipping']
+  address_line_1 text [not null]
+  address_line_2 text
+  city varchar(50) [not null]
+  state varchar(50) [not null]
+  postal_code varchar(20) [not null]
+  country varchar(50) [not null]
+  is_default boolean [default: false]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  
+  Note: 'Customer billing and shipping addresses'
+}
+
 Table orders {
   id uuid [pk, default: `gen_random_uuid()`]
   order_number varchar(50) [unique, not null]
@@ -260,7 +302,7 @@ Table orders {
   tax_amount decimal(10,2)
   discount_amount decimal(10,2)
   notes text
-  created_by uuid [ref: > user.id]
+  created_by text [ref: > user.id]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
   
@@ -331,46 +373,39 @@ Table shipments {
 
 // Additional Auth Tables (if needed)
 Table account {
-  id uuid [pk, default: `gen_random_uuid()`]
-  userId uuid [ref: > user.id, not null]
-  type varchar(255) [not null]
-  provider varchar(255) [not null]
-  providerAccountId varchar(255) [not null]
-  refresh_token text
-  access_token text
-  expires_at integer
-  token_type varchar(255)
-  scope varchar(255)
-  id_token text
-  session_state varchar(255)
+  id text [pk]
+  accountId text [not null]
+  providerId text [not null]
+  userId text [ref: > user.id, not null]
+  accessToken text
+  refreshToken text
+  idToken text
+  accessTokenExpiresAt timestamp
+  refreshTokenExpiresAt timestamp
+  scope text
+  password text
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
-  
-  indexes {
-    (provider, providerAccountId) [unique]
-  }
 }
 
 Table session {
-  id uuid [pk, default: `gen_random_uuid()`]
-  sessionToken varchar(255) [unique, not null]
-  userId uuid [ref: > user.id, not null]
-  expires timestamp [not null]
+  id text [pk]
+  expiresAt timestamp [not null]
+  token text [unique, not null]
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
+  ipAddress text
+  userAgent text
+  userId text [ref: > user.id, not null]
 }
 
 Table verification {
-  id uuid [pk, default: `gen_random_uuid()`]
-  identifier varchar(255) [not null]
-  token varchar(255) [unique, not null]
-  expires timestamp [not null]
+  id text [pk]
+  identifier text [not null]
+  value text [not null]
+  expiresAt timestamp [not null]
   createdAt timestamp [default: `now()`]
   updatedAt timestamp [default: `now()`]
-  
-  indexes {
-    (identifier, token) [unique]
-  }
 }
 
 // Relationship Groups for better visualization
@@ -397,13 +432,17 @@ Ref: user.id < transfers.requested_by [note: 'Transfer requester']
 Ref: user.id < transfers.approved_by [note: 'Transfer approver']
 Ref: user.id < orders.created_by [note: 'Order creator']
 Ref: user.id < warehouses.manager_id [note: 'Warehouse manager']
-Ref: user.id < departments.managerId [note: 'Department manager']
+Ref: user.id < departments.manager_id [note: 'Department manager']
 
 Ref: roles.id < user.roleId [note: 'User roles']
 Ref: departments.id < user.departmentId [note: 'User departments']
+Ref: departments.id < projects.department_id [note: 'Project departments']
+Ref: user.id < projects.manager_id [note: 'Project managers']
+Ref: departments.id < roles.department_id [note: 'Department roles']
+Ref: customers.id < customer_addresses.customer_id [note: 'Customer addresses']
 Ref: product_categories.id < products.category_id [note: 'Product categories']
 Ref: suppliers.id < products.supplier_id [note: 'Product suppliers']
 Ref: product_categories.id < product_categories.parent_id [note: 'Category hierarchy']
 
 Ref: user.id < account.userId [note: 'User accounts']
-Ref: user.id < session.userId [note: 'User sessions']
+Ref: user.id < session.userId

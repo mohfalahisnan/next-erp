@@ -27,6 +27,7 @@ export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
   transfersFrom: many(transfers, { relationName: "fromWarehouse" }),
   transfersTo: many(transfers, { relationName: "toWarehouse" }),
   orders: many(orders),
+
 }));
 
 // Product Category Relations
