@@ -6,7 +6,11 @@ import {
   IconLogout,
   IconSettings,
   IconUser,
+  IconMoon,
+  IconSun,
+  IconDeviceDesktop,
 } from "@tabler/icons-react"
+import { useTheme } from "next-themes"
 
 import {
   Avatar,
@@ -38,6 +42,7 @@ export function NavUser({
     avatar: string
   }
 }) {
+  const { setTheme, theme } = useTheme()
   const { isMobile } = useSidebar()
 
   return (
@@ -101,8 +106,26 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setTheme("light")} className="flex items-center gap-2">
+                <IconSun className="h-4 w-4" />
+                Light
+                {theme === "light" && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")} className="flex items-center gap-2">
+                <IconMoon className="h-4 w-4" />
+                Dark
+                {theme === "dark" && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")} className="flex items-center gap-2">
+                <IconDeviceDesktop className="h-4 w-4" />
+                System
+                {theme === "system" && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <IconLogout className="mr-2 h-4 w-4" />
+              <IconLogout />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
