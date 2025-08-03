@@ -12,10 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogOut, User } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export function UserProfile() {
   const { data: session, isPending } = useSession()
-
+const router = useRouter()
   if (isPending) {
     return (
       <div className="flex items-center space-x-2">
@@ -32,6 +33,7 @@ export function UserProfile() {
   const handleSignOut = async () => {
     try {
       await signOut()
+        router.push("/login")
     } catch (error) {
       console.error("Sign out error:", error)
     }

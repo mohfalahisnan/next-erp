@@ -164,9 +164,11 @@ export const config: TableConfig<User> = {
 				],
 			},
 		],
+		showCreateButton:false,
 	},
 	withActions: true,
 	withSelect: true,
+
 	customActions: [
 		{
 			label: "Send Email",
