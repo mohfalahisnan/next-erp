@@ -7,14 +7,14 @@ export function SelectExample() {
 				model="department"
 				placeholder="Select a department"
 				label="Department"
-				indexKey="_id"
+				indexKey="id"
 				indexValue="name"
 			/>
 			<DynamicSelect
 				model="project"
 				placeholder="Select a project"
 				label="Project"
-				indexKey="_id"
+				indexKey="id"
 				indexValue="name"
 			/>
 		</div>

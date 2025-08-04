@@ -37,7 +37,7 @@ export function DynamicSelect(props: DynamicSelect) {
 	if (data.isLoading || data.isFetching) {
 		return (
 			<Select
-				value={props.value?._id}
+				value={props.value?.id}
 				disabled={props.disabled || data.isLoading}
 				onValueChange={props.onChange}
 			>
@@ -50,7 +50,7 @@ export function DynamicSelect(props: DynamicSelect) {
 
 	return (
 		<Select
-			value={props.value?._id}
+			value={props.value?.id}
 			disabled={props.disabled || data.isLoading}
 			onValueChange={props.onChange}
 		>

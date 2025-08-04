@@ -1,0 +1,473 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Status {
+  Active
+  Inactive
+  Suspended
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  TRANSFER
+}
+
+enum TransferStatus {
+  PENDING
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+// Auth Models
+model User {
+  // Auth fields (required by better-auth)
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // ERP fields
+  roleId       String?
+  status       Status?   @default(Active)
+  departmentId String?
+  position     String?
+  salary       Decimal?
+  hireDate     DateTime?
+  phone        String?
+  address      String?
+  lastLogin    DateTime?
+
+  // Relations
+  role               Role?        @relation(fields: [roleId], references: [id])
+  department         Department?  @relation(fields: [departmentId], references: [id])
+  managedDepartments Department[] @relation("DepartmentManager")
+  managedProjects    Project[]    @relation("ProjectManager")
+  Warehouse          Warehouse[]  @relation("WarehouseManager")
+  sessions           Session[]
+  accounts           Account[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// Core ERP Models
+model Department {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  managerId   String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  manager  User?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  users    User[]
+  projects Project[]
+  roles    Role[]
+
+  @@map("departments")
+}
+
+model Role {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  departmentId String?
+  permissions  String?
+  isActive     Boolean? @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  department Department? @relation(fields: [departmentId], references: [id])
+  users      User[]
+
+  @@map("roles")
+}
+
+model Project {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  departmentId String?
+  managerId    String?
+  startDate    DateTime?
+  endDate      DateTime?
+  budget       Decimal?
+  status       Status?   @default(Active)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  department Department? @relation(fields: [departmentId], references: [id])
+  manager    User?       @relation("ProjectManager", fields: [managerId], references: [id])
+
+  @@map("projects")
+}
+
+// Warehouse Management Models
+model Warehouse {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  description String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  managerId String?
+  manager   User?   @relation("WarehouseManager", fields: [managerId], references: [id])
+
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+  transfersFrom      Transfer[]          @relation("TransferFromWarehouse")
+  transfersTo        Transfer[]          @relation("TransferToWarehouse")
+
+  @@map("warehouses")
+}
+
+model ProductCategory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  parent   ProductCategory?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  products Product[]
+
+  @@map("suppliers")
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  description   String?
+  categoryId    String?
+  supplierId    String?
+  baseCostPrice Decimal?
+  weight        Decimal?
+  dimensions    String?
+  imageUrl      String?
+  isActive      Boolean? @default(true)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  category        ProductCategory? @relation(fields: [categoryId], references: [id])
+  supplier        Supplier?        @relation(fields: [supplierId], references: [id])
+  productVariants ProductVariant[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  id          String   @id @default(cuid())
+  productId   String
+  sku         String   @unique
+  name        String
+  retailPrice Decimal?
+  costPrice   Decimal?
+  weight      Decimal?
+  dimensions  String?
+  imageUrl    String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  product            Product             @relation(fields: [productId], references: [id])
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+  transferItems      TransferItem[]
+  orderItems         OrderItem[]
+
+  @@map("product_variants")
+}
+
+model Inventory {
+  id               String   @id @default(cuid())
+  warehouseId      String
+  productVariantId String
+  quantity         Int      @default(0)
+  reservedQuantity Int      @default(0)
+  reorderLevel     Int?     @default(0)
+  maxStockLevel    Int?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, productVariantId])
+  @@map("inventory")
+}
+
+model InventoryMovement {
+  id               String       @id @default(cuid())
+  warehouseId      String
+  productVariantId String
+  movementType     MovementType
+  quantity         Int
+  previousQuantity Int?
+  newQuantity      Int?
+  reason           String?
+  referenceId      String?
+  referenceType    String?
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  warehouse      Warehouse      @relation(fields: [warehouseId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@map("inventory_movements")
+}
+
+model Transfer {
+  id              String         @id @default(cuid())
+  fromWarehouseId String
+  toWarehouseId   String
+  status          TransferStatus @default(PENDING)
+  notes           String?
+  requestedDate   DateTime?
+  shippedDate     DateTime?
+  receivedDate    DateTime?
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  fromWarehouse Warehouse      @relation("TransferFromWarehouse", fields: [fromWarehouseId], references: [id])
+  toWarehouse   Warehouse      @relation("TransferToWarehouse", fields: [toWarehouseId], references: [id])
+  transferItems TransferItem[]
+
+  @@map("transfers")
+}
+
+model TransferItem {
+  id               String   @id @default(cuid())
+  transferId       String
+  productVariantId String
+  requestedQty     Int
+  shippedQty       Int?     @default(0)
+  receivedQty      Int?     @default(0)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  transfer       Transfer       @relation(fields: [transferId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@map("transfer_items")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  isActive  Boolean? @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  addresses CustomerAddress[]
+  orders    Order[]
+
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id         String   @id @default(cuid())
+  customerId String
+  type       String
+  address    String
+  city       String
+  state      String
+  zipCode    String
+  country    String
+  isDefault  Boolean? @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@map("customer_addresses")
+}
+
+model Carrier {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  isActive    Boolean? @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  shipments Shipment[]
+
+  @@map("carriers")
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  customerId    String
+  orderNumber   String      @unique
+  status        OrderStatus @default(PENDING)
+  totalAmount   Decimal?
+  shippingCost  Decimal?
+  taxAmount     Decimal?
+  notes         String?
+  orderDate     DateTime?
+  shippedDate   DateTime?
+  deliveredDate DateTime?
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  orderItems OrderItem[]
+  shipments  Shipment[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String   @id @default(cuid())
+  orderId          String
+  productVariantId String
+  quantity         Int
+  unitPrice        Decimal
+  totalPrice       Decimal
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  order          Order          @relation(fields: [orderId], references: [id])
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  orderId        String
+  carrierId      String?
+  trackingNumber String?
+  status         ShipmentStatus @default(PENDING)
+  shippedDate    DateTime?
+  deliveredDate  DateTime?
+  notes          String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  // Relations
+  order   Order    @relation(fields: [orderId], references: [id])
+  carrier Carrier? @relation(fields: [carrierId], references: [id])
+
+  @@map("shipments")
+}

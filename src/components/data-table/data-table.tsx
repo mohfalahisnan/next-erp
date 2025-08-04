@@ -106,7 +106,8 @@ export type CellType =
 	| "date"
 	| "select"
 	| "email"
-	| "enum";
+	| "enum"
+	| "boolean";
 
 export type HeaderFilterType =
 	| "text"
@@ -561,29 +562,7 @@ function DataTableContent<T>() {
 				dateColumnId={tableConfig?.headerProps?.dateColumnId || "updatedAt"}
 				filterOptions={
 					tableConfig?.headerProps?.filterOptions || [
-						{
-							accessorKey: "status",
-							label: "Status",
-							multiple: true,
-							values: [
-								{
-									label: "Pending",
-									value: "pending",
-								},
-								{
-									label: "Processing",
-									value: "processing",
-								},
-								{
-									label: "Success",
-									value: "success",
-								},
-								{
-									label: "Failed",
-									value: "failed",
-								},
-							],
-						},
+						
 					]
 				}
 				{...tableConfig.headerProps}

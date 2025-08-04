@@ -1,5 +1,5 @@
 ﻿import { TableConfig } from "@/components/data-table/data-table";
-import { Role } from "@/lib/db";
+import { Role } from "@prisma/client";
 import { IconDownload } from "@tabler/icons-react";
 
 export const config: TableConfig<Role> = {
@@ -11,24 +11,32 @@ export const config: TableConfig<Role> = {
 		},
 		model: "roles",
 	},
-	columns: [		{
+	columns: [
+		{
 			accessorKey: "name",
 			headerFilterType: "text",
-		},		{
+		},
+		{
 			accessorKey: "description",
 			headerFilterType: "text",
-		},		{
+		},
+		{
 			accessorKey: "department.name",
 			headerLabel: "Department",
-		},		{
+		},
+		{
 			accessorKey: "createdAt",
 			cellType: "date",
 			headerFilterType: "dateRange",
-		},	],
+		},
+	],
 	headerProps: {
 		dateColumnId: "createdAt",
 		filterDate: true,
 		showCreateButton: true,
+		filterOptions: [
+		],
+		
 	},
 	withActions: true,
 	withSelect: true,
@@ -53,4 +61,25 @@ export const config: TableConfig<Role> = {
 			variant: "outline" as const,
 		},
 	],
+	form: {
+		fields: [
+			{
+				accessorKey: "name",
+				config: {
+					type: "text",
+					placeholder: "Enter role name",
+					validation: {
+						required: true,
+					},
+				},
+			},
+			{
+				accessorKey: "description",
+				config: {
+					type: "text",
+					placeholder: "Enter role description",
+				},
+			},
+		],
+	},
 };

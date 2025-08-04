@@ -1,15 +1,17 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "./schemas";
+import { PrismaClient } from '@prisma/client';
 
 if (!process.env.DATABASE_URL) {
 	throw new Error("DATABASE_URL environment variable is required");
 }
 
-// Create the connection
-const sql = neon(process.env.DATABASE_URL!);
+// Create the Prisma client instance
+const globalForPrisma = globalThis as unknown as {
+	prisma: PrismaClient | undefined;
+};
 
-// Create the database instance
-export const db = drizzle(sql, { schema });
+export const db = globalForPrisma.prisma ?? new PrismaClient();
 
-export * from "./schemas";
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
+
+// Export Prisma client as default
+export default db;

@@ -1,42 +1,6 @@
-import {
-	and,
-	asc,
-	count,
-	desc,
-	eq,
-	gt,
-	gte,
-	like,
-	lt,
-	lte,
-	or,
-} from "drizzle-orm";
-import type { PgTable } from "drizzle-orm/pg-core";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "./db";
-import { 
-	departments, 
-	projects, 
-	roles, 
-	user,
-	// Warehouse management tables
-	warehouses,
-	productCategories,
-	suppliers,
-	products,
-	productVariants,
-	inventory,
-	inventoryMovements,
-	transfers,
-	transferItems,
-	customers,
-	customerAddresses,
-	carriers,
-	orders,
-	orderItems,
-	shipments
-} from "./db/schemas";
 import {
 	departmentCreateSchema,
 	departmentUpdateSchema,
@@ -48,586 +12,309 @@ import {
 	userUpdateSchema,
 } from "./db/validations";
 
-// Create basic schemas for warehouse tables (using table inference)
-const createBasicSchema = (_data:any) => z.object({}).passthrough();
-const updateBasicSchema = (_data:any) => z.object({}).passthrough().partial();
+const createBasicSchema = (_data: any) => z.object({}).passthrough();
+const updateBasicSchema = (_data: any) => z.object({}).passthrough().partial();
 
-// Model configuration
 interface ModelConfig {
-	table: PgTable;
+	model: string;
 	createSchema: any;
 	updateSchema: any;
 	relations?: string[];
-	relationMappings?: Record<string, string[]>;
 }
 
-// Model registry
 export const modelRegistry: Record<string, ModelConfig> = {
 	user: {
-		table: user,
+		model: "user",
 		createSchema: userCreateSchema,
 		updateSchema: userUpdateSchema,
-		relations: ["department"],
+		relations: ["department", "role"],
 	},
 	departments: {
-		table: departments,
+		model: "department",
 		createSchema: departmentCreateSchema,
 		updateSchema: departmentUpdateSchema,
 		relations: ["manager", "users", "projects"],
 	},
 	roles: {
-		table: roles,
+		model: "role",
 		createSchema: roleCreateSchema,
 		updateSchema: roleUpdateSchema,
-		relations: ["department"],
+		relations: ["department", "users"],
 	},
 	projects: {
-		table: projects,
+		model: "project",
 		createSchema: projectCreateSchema,
 		updateSchema: projectUpdateSchema,
 		relations: ["department", "manager"],
 	},
-	// Warehouse Management Tables
+	// Warehouse management models
 	warehouses: {
-		table: warehouses,
-		createSchema: createBasicSchema(warehouses),
-		updateSchema: updateBasicSchema(warehouses),
-		relations: ["manager", "inventory", "transfers", "orders"],
+		model: "warehouse",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
+		relations: ["manager", "inventory", "transfersFrom", "transfersTo", "orders"],
 	},
 	productCategories: {
-		table: productCategories,
-		createSchema: createBasicSchema(productCategories),
-		updateSchema: updateBasicSchema(productCategories),
+		model: "productCategory",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["products"],
 	},
 	suppliers: {
-		table: suppliers,
-		createSchema: createBasicSchema(suppliers),
-		updateSchema: updateBasicSchema(suppliers),
+		model: "supplier",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["products"],
 	},
 	products: {
-		table: products,
-		createSchema: createBasicSchema(products),
-		updateSchema: updateBasicSchema(products),
+		model: "product",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["category", "supplier", "variants"],
 	},
 	productVariants: {
-		table: productVariants,
-		createSchema: createBasicSchema(productVariants),
-		updateSchema: updateBasicSchema(productVariants),
+		model: "productVariant",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["product", "inventory"],
 	},
 	inventory: {
-		table: inventory,
-		createSchema: createBasicSchema(inventory),
-		updateSchema: updateBasicSchema(inventory),
+		model: "inventory",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["productVariant", "warehouse", "movements"],
 	},
 	inventoryMovements: {
-		table: inventoryMovements,
-		createSchema: createBasicSchema(inventoryMovements),
-		updateSchema: updateBasicSchema(inventoryMovements),
+		model: "inventoryMovement",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["inventory", "user"],
 	},
 	transfers: {
-		table: transfers,
-		createSchema: createBasicSchema(transfers),
-		updateSchema: updateBasicSchema(transfers),
+		model: "transfer",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["fromWarehouse", "toWarehouse", "items", "requestedBy", "approvedBy"],
 	},
 	transferItems: {
-		table: transferItems,
-		createSchema: createBasicSchema(transferItems),
-		updateSchema: updateBasicSchema(transferItems),
+		model: "transferItem",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["transfer", "productVariant"],
 	},
 	customers: {
-		table: customers,
-		createSchema: createBasicSchema(customers),
-		updateSchema: updateBasicSchema(customers),
+		model: "customer",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["addresses", "orders"],
 	},
 	customerAddresses: {
-		table: customerAddresses,
-		createSchema: createBasicSchema(customerAddresses),
-		updateSchema: updateBasicSchema(customerAddresses),
+		model: "customerAddress",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["customer"],
 	},
 	carriers: {
-		table: carriers,
-		createSchema: createBasicSchema(carriers),
-		updateSchema: updateBasicSchema(carriers),
+		model: "carrier",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["shipments"],
 	},
 	orders: {
-		table: orders,
-		createSchema: createBasicSchema(orders),
-		updateSchema: updateBasicSchema(orders),
+		model: "order",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["customer", "warehouse", "items", "shipments"],
 	},
 	orderItems: {
-		table: orderItems,
-		createSchema: createBasicSchema(orderItems),
-		updateSchema: updateBasicSchema(orderItems),
+		model: "orderItem",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["order", "productVariant"],
 	},
 	shipments: {
-		table: shipments,
-		createSchema: createBasicSchema(shipments),
-		updateSchema: updateBasicSchema(shipments),
+		model: "shipment",
+		createSchema: createBasicSchema({}),
+		updateSchema: updateBasicSchema({}),
 		relations: ["order", "carrier", "warehouse"],
 	},
 };
 
-// Helper function to parse date values
 function parseDate(value: any): Date | null {
-	if (value instanceof Date) {
-		return value;
-	}
-
-	if (typeof value === "string") {
-		// Handle various date formats
-		if (
-			value.includes("T") ||
-			value.includes("Z") ||
-			value.match(/^\d{4}-\d{2}-\d{2}/)
-		) {
-			const parsed = new Date(value);
-			return isNaN(parsed.getTime()) ? null : parsed;
-		}
-
-		// Handle MM/DD/YYYY or DD/MM/YYYY formats
-		if (value.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
-			const parsed = new Date(value);
-			return isNaN(parsed.getTime()) ? null : parsed;
-		}
-
-		// Handle YYYY-MM-DD format
-		if (value.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			const parsed = new Date(value + "T00:00:00.000Z");
-			return isNaN(parsed.getTime()) ? null : parsed;
-		}
-	}
-
-	return null;
+	if (!value) return null;
+	const date = new Date(value);
+	return isNaN(date.getTime()) ? null : date;
 }
 
-// Helper function to check if a column is likely a date column
 function isDateColumn(key: string): boolean {
-	return (
-		key.toLowerCase().includes("date") ||
-		key.toLowerCase().includes("created") ||
-		key.toLowerCase().includes("updated") ||
-		key.toLowerCase().includes("time") ||
-		key.toLowerCase().endsWith("at")
-	);
+	return [
+		"createdAt",
+		"updatedAt",
+		"startDate",
+		"endDate",
+		"dueDate",
+		"orderDate",
+		"shippedDate",
+		"deliveredDate",
+	].includes(key);
 }
 
-// Helper function to build where conditions
-function buildWhereConditions(table: PgTable, filters: Record<string, any>) {
-	const conditions: any[] = [];
-	const processedKeys = new Set<string>();
+function buildWhereConditions(filters: Record<string, any>) {
+	const where: any = {};
 
-	// Handle date range filters first (e.g., filter_createdAt and filter_createdAt_to)
 	for (const [key, value] of Object.entries(filters)) {
-		if (value === undefined || value === null) continue;
-		if (processedKeys.has(key)) continue;
+		if (value === undefined || value === null || value === "") continue;
 
-		// Check for range filters (key ending with _to)
-		if (key.endsWith("_to")) {
-			const baseKey = key.replace("_to", "");
-			const fromValue = filters[baseKey];
-			const toValue = value;
-			const fromOp = filters[`${baseKey}_op`];
-			const toOp = filters[`${key}_op`];
-
-			if (fromValue !== undefined && fromValue !== null) {
-				const column = (table as any)[baseKey.replace("filter_", "")];
-				if (column) {
-					// Parse from value
-					let parsedFromValue = fromValue;
-					if (
-						isDateColumn(baseKey.replace("filter_", "")) ||
-						typeof fromValue === "string"
-					) {
-						const dateValue = parseDate(fromValue);
-						if (dateValue) {
-							parsedFromValue = dateValue;
-						}
-					}
-
-					// Parse to value
-					let parsedToValue = toValue;
-					if (
-						isDateColumn(baseKey.replace("filter_", "")) ||
-						typeof toValue === "string"
-					) {
-						const dateValue = parseDate(toValue);
-						if (dateValue) {
-							parsedToValue = dateValue;
-						}
-					}
-
-					// Apply from condition
-					if (fromOp === "greater_than" || fromOp === "gt") {
-						conditions.push(gt(column, parsedFromValue));
-					} else {
-						conditions.push(gte(column, parsedFromValue));
-					}
-
-					// Apply to condition
-					if (toOp === "less_than" || toOp === "lt") {
-						conditions.push(lt(column, parsedToValue));
-					} else {
-						conditions.push(lte(column, parsedToValue));
-					}
-
-					processedKeys.add(baseKey);
-					processedKeys.add(key);
-					processedKeys.add(`${baseKey}_op`);
-					processedKeys.add(`${key}_op`);
-				}
-			}
+		if (key === "search") {
+			// Handle search across multiple fields
+			continue; // Will be handled separately
 		}
-	}
 
-	for (const [key, value] of Object.entries(filters)) {
-		if (value === undefined || value === null) continue;
-		if (processedKeys.has(key)) continue;
-
-		// Handle operation-based filters
-		if (key.endsWith("_op")) {
-			const baseKey = key.replace("_op", "");
-			const filterValue = filters[baseKey];
-			const operation = value;
-
-			if (filterValue !== undefined && filterValue !== null) {
-				const column = (table as any)[baseKey.replace("filter_", "")];
-				if (column) {
-					let parsedValue = filterValue;
-
-					// Try to parse as date for date-like columns or if value looks like a date
-					if (
-						isDateColumn(baseKey.replace("filter_", "")) ||
-						typeof filterValue === "string"
-					) {
-						const dateValue = parseDate(filterValue);
-						if (dateValue) {
-							parsedValue = dateValue;
-						}
-					}
-
-					switch (operation) {
-						case "greater_than":
-						case "gt":
-							conditions.push(gt(column, parsedValue));
-							break;
-						case "greater_than_or_equal":
-						case "gte":
-							conditions.push(gte(column, parsedValue));
-							break;
-						case "less_than":
-						case "lt":
-							conditions.push(lt(column, parsedValue));
-							break;
-						case "less_than_or_equal":
-						case "lte":
-							conditions.push(lte(column, parsedValue));
-							break;
-						case "equals":
-							conditions.push(eq(column, parsedValue));
-							break;
-						case "contains":
-							conditions.push(like(column, `%${parsedValue}%`));
-							break;
-						case "in":
-							if (typeof parsedValue === "string") {
-								const values = parsedValue.split(",").map((v) => v.trim());
-								conditions.push(or(...values.map((v) => eq(column, v))));
-							}
-							break;
-						default:
-							conditions.push(eq(column, parsedValue));
-					}
-					processedKeys.add(baseKey);
-					processedKeys.add(key);
-				}
+		// Handle date filters
+		if (isDateColumn(key)) {
+			const dateValue = parseDate(value);
+			if (dateValue) {
+				where[key] = dateValue;
 			}
 			continue;
 		}
 
-		// Skip if this key has an operation or has been processed
-		if (filters[`${key}_op`] || processedKeys.has(key)) {
-			continue;
-		}
-
-		const columnKey = key.replace("filter_", "");
-		const column = (table as any)[columnKey];
-		if (!column) continue;
-
-		// Default handling for filters without explicit operations
-		if (typeof value === "string") {
-			// Try to parse as date for date-like columns
-			if (isDateColumn(columnKey)) {
+		// Handle range filters
+		if (key.endsWith("_gte")) {
+			const field = key.replace("_gte", "");
+			if (isDateColumn(field)) {
 				const dateValue = parseDate(value);
 				if (dateValue) {
-					conditions.push(eq(column, dateValue));
-					processedKeys.add(key);
-					continue;
+					where[field] = { ...where[field], gte: dateValue };
+				}
+			} else {
+				const numValue = Number(value);
+				if (!isNaN(numValue)) {
+					where[field] = { ...where[field], gte: numValue };
 				}
 			}
-
-			if (value.includes(",")) {
-				// Handle multiple values (OR condition)
-				const values = value.split(",").map((v) => v.trim());
-				conditions.push(or(...values.map((v) => eq(column, v))));
-			} else if (
-				columnKey.includes("search") ||
-				columnKey.includes("name") ||
-				columnKey.includes("email")
-			) {
-				// Text search
-				conditions.push(like(column, `%${value}%`));
-			} else {
-				conditions.push(eq(column, value));
-			}
-		} else if (typeof value === "number") {
-			conditions.push(eq(column, value));
-		} else if (value instanceof Date) {
-			conditions.push(eq(column, value));
+			continue;
 		}
-		processedKeys.add(key);
+
+		if (key.endsWith("_lte")) {
+			const field = key.replace("_lte", "");
+			if (isDateColumn(field)) {
+				const dateValue = parseDate(value);
+				if (dateValue) {
+					where[field] = { ...where[field], lte: dateValue };
+				}
+			} else {
+				const numValue = Number(value);
+				if (!isNaN(numValue)) {
+					where[field] = { ...where[field], lte: numValue };
+				}
+			}
+			continue;
+		}
+
+		if (key.endsWith("_gt")) {
+			const field = key.replace("_gt", "");
+			if (isDateColumn(field)) {
+				const dateValue = parseDate(value);
+				if (dateValue) {
+					where[field] = { ...where[field], gt: dateValue };
+				}
+			} else {
+				const numValue = Number(value);
+				if (!isNaN(numValue)) {
+					where[field] = { ...where[field], gt: numValue };
+				}
+			}
+			continue;
+		}
+
+		if (key.endsWith("_lt")) {
+			const field = key.replace("_lt", "");
+			if (isDateColumn(field)) {
+				const dateValue = parseDate(value);
+				if (dateValue) {
+					where[field] = { ...where[field], lt: dateValue };
+				}
+			} else {
+				const numValue = Number(value);
+				if (!isNaN(numValue)) {
+					where[field] = { ...where[field], lt: numValue };
+				}
+			}
+			continue;
+		}
+
+		// Handle string contains filters
+		if (key.endsWith("_contains")) {
+			const field = key.replace("_contains", "");
+			where[field] = { contains: value, mode: "insensitive" };
+			continue;
+		}
+
+		// Handle exact matches
+		where[key] = value;
 	}
 
-	return conditions.length > 0 ? and(...conditions) : undefined;
+	return where;
 }
 
-// Helper function to build order by
-function buildOrderBy(table: PgTable, sort?: string, order?: string) {
-	if (!sort) {
-		const createdAt = (table as any).createdAt;
-		return createdAt ? [desc(createdAt)] : [];
-	}
+function buildOrderBy(sort?: string, order?: string) {
+	if (!sort) return { createdAt: "desc" };
 
-	const column = (table as any)[sort];
-	if (!column) {
-		const createdAt = (table as any).createdAt;
-		return createdAt ? [desc(createdAt)] : [];
-	}
-
-	return order === "asc" ? [asc(column)] : [desc(column)];
+	const direction = order?.toLowerCase() === "asc" ? "asc" : "desc";
+	return { [sort]: direction };
 }
 
-// Helper function to build relations query
-// Dynamic relation mapping for nested queries
-const relationMappings: Record<string, Record<string, string[]>> = {
-	users: {
-		department: ["manager", "projects"],
-		role: ["department"]
-	},
-	departments: {
-		manager: ["role"],
-		users: ["role"],
-		projects: ["manager"]
-	},
-	projects: {
-		department: ["manager"],
-		manager: ["department", "role"]
-	},
-	roles: {
-		department: ["manager"],
-		users: ["department"]
-	},
-	warehouses: {
-		manager: ["department", "role"],
-		inventory: ["productVariant"],
-		transfers: ["items"],
-		orders: ["customer", "items"]
-	},
-	products: {
-		category: [],
-		supplier: [],
-		variants: ["inventory"]
-	},
-	productVariants: {
-		product: ["category", "supplier"],
-		inventory: ["warehouse"]
-	},
-	inventory: {
-		productVariant: ["product"],
-		warehouse: ["manager"],
-		movements: ["user"]
-	},
-	inventoryMovements: {
-		inventory: ["productVariant", "warehouse"],
-		user: ["department", "role"]
-	},
-	transfers: {
-		fromWarehouse: ["manager"],
-		toWarehouse: ["manager"],
-		items: ["productVariant"],
-		requestedBy: ["department", "role"],
-		approvedBy: ["department", "role"]
-	},
-	transferItems: {
-		transfer: ["fromWarehouse", "toWarehouse"],
-		productVariant: ["product"]
-	},
-	customers: {
-		addresses: [],
-		orders: ["warehouse", "items"]
-	},
-	customerAddresses: {
-		customer: ["orders"]
-	},
-	carriers: {
-		shipments: ["order", "warehouse"]
-	},
-	orders: {
-		customer: ["addresses"],
-		warehouse: ["manager"],
-		items: ["productVariant"],
-		shipments: ["carrier"]
-	},
-	orderItems: {
-		order: ["customer", "warehouse"],
-		productVariant: ["product"]
-	},
-	shipments: {
-		order: ["customer", "items"],
-		carrier: [],
-		warehouse: ["manager"]
-	}
-};
+function buildIncludeQuery(populate?: string, relations?: string[]) {
+	if (!populate || !relations) return {};
 
-function buildRelationsQuery(
-	modelName: string,
-	populate?: string,
-	depth: number = 1,
-) {
-	if (!populate || depth <= 0) return {};
-
-	const relations: Record<string, any> = {};
+	const include: any = {};
 	const populateFields = populate.split(",").map((field) => field.trim());
-	const modelConfig = modelRegistry[modelName];
-	
-	if (!modelConfig || !modelConfig.relations) {
-		return {};
-	}
-
-	// Use model-specific relation mappings if available, otherwise use global mappings
-	const currentRelationMappings = modelConfig.relationMappings || relationMappings[modelName] || {};
 
 	for (const field of populateFields) {
-		// Check if the field is a valid relation for this model
-		if (modelConfig.relations.includes(field)) {
-			if (depth > 1) {
-				// Get nested relations for this field from the mapping
-				const nestedRelations = currentRelationMappings[field] || [];
-				
-				if (nestedRelations.length > 0) {
-					const withClause: Record<string, any> = {};
-					
-					for (const nestedField of nestedRelations) {
-						// Recursively build nested relations for deeper levels
-						if (depth > 2) {
-							// Try to get the target model for this nested field
-							const targetModelName = getTargetModelName(field, nestedField);
-							if (targetModelName && relationMappings[targetModelName]?.[nestedField]) {
-								const deeperRelations = relationMappings[targetModelName][nestedField];
-								if (deeperRelations.length > 0) {
-									const deepWithClause: Record<string, any> = {};
-									for (const deepField of deeperRelations) {
-										deepWithClause[deepField] = true;
-									}
-									withClause[nestedField] = { with: deepWithClause };
-								} else {
-									withClause[nestedField] = true;
-								}
-							} else {
-								withClause[nestedField] = true;
-							}
-						} else {
-							withClause[nestedField] = true;
-						}
-					}
-					
-					relations[field] = { with: withClause };
-				} else {
-					relations[field] = true;
-				}
-			} else {
-				relations[field] = true;
-			}
+		if (relations.includes(field)) {
+			include[field] = true;
 		}
 	}
 
-	return Object.keys(relations).length > 0 ? { with: relations } : {};
+	return include;
 }
 
-// Helper function to determine target model name for nested relations
-function getTargetModelName(parentField: string, nestedField: string): string | null {
-	// Simple mapping for common relation patterns
-	const fieldToModelMap: Record<string, string> = {
-		manager: "users",
-		user: "users",
-		users: "users",
-		department: "departments",
-		role: "roles",
-		warehouse: "warehouses",
-		product: "products",
-		productVariant: "productVariants",
-		category: "productCategories",
-		supplier: "suppliers",
-		customer: "customers",
-		carrier: "carriers",
-		order: "orders",
-		transfer: "transfers",
-		inventory: "inventory",
-		shipment: "shipments"
-	};
-	
-	return fieldToModelMap[parentField] || null;
-}
-
-// Map lowercase model names to drizzle query keys
 const modelToQueryMap: Record<string, string> = {
 	user: "user",
-	departments: "departments",
-	roles: "roles",
-	projects: "projects",
-	warehouses: "warehouses",
-	productcategories: "productCategories",
-	"product-categories": "productCategories",
-	suppliers: "suppliers",
-	products: "products",
-	productvariant: "productVariants",
-	productvariants: "productVariants",
-	"product-variants": "productVariants",
+	departments: "department",
+	roles: "role",
+	projects: "project",
+	warehouses: "warehouse",
+	productcategories: "productCategory",
+	"product-categories": "productCategory",
+	suppliers: "supplier",
+	products: "product",
+	productvariant: "productVariant",
+	productvariants: "productVariant",
+	"product-variants": "productVariant",
 	inventory: "inventory",
-	inventorymovements: "inventoryMovements",
-	"inventory-movements": "inventoryMovements",
-	transfers: "transfers",
-	transferitems: "transferItems",
-	"transfer-items": "transferItems",
-	customers: "customers",
-	customeraddresses: "customerAddresses",
-	"customer-addresses": "customerAddresses",
-	carriers: "carriers",
-	orders: "orders",
-	orderitems: "orderItems",
-	"order-items": "orderItems",
-	shipments: "shipments"
+	inventorymovements: "inventoryMovement",
+	"inventory-movements": "inventoryMovement",
+	transfers: "transfer",
+	transferitems: "transferItem",
+	"transfer-items": "transferItem",
+	customers: "customer",
+	customeraddresses: "customerAddress",
+	"customer-addresses": "customerAddress",
+	carriers: "carrier",
+	orders: "order",
+	orderitems: "orderItem",
+	"order-items": "orderItem",
+	shipments: "shipment",
 };
 
-// Generic API handler
 export async function createApiHandler(modelName: string) {
 	const config = modelRegistry[modelName.toLowerCase()];
 	if (!config) {
 		throw new Error(`Model ${modelName} not found`);
 	}
-	
+
 	const queryKey = modelToQueryMap[modelName.toLowerCase()];
 	if (!queryKey) {
 		throw new Error(`Query key for model ${modelName} not found`);
@@ -646,7 +333,6 @@ export async function createApiHandler(modelName: string) {
 					searchParams.get("order") || searchParams.get("sortOrder") || "desc";
 				const search = searchParams.get("search");
 				const populate = searchParams.get("populate");
-				const depth = parseInt(searchParams.get("depth") || "1");
 
 				// Build filters
 				const filters: Record<string, any> = {};
@@ -660,8 +346,8 @@ export async function createApiHandler(modelName: string) {
 							"order",
 							"sortOrder",
 							"populate",
-							"depth",
 							"search",
+							"depth",
 						].includes(key)
 					) {
 						// Handle filter parameters
@@ -679,29 +365,40 @@ export async function createApiHandler(modelName: string) {
 					filters.search = search;
 				}
 
-				const offset = (page - 1) * limit;
-				const whereConditions = buildWhereConditions(config.table, filters);
-				const orderBy = buildOrderBy(config.table, sort, order);
-				// @ts-expect-error  - drizzle-orm types are not up-to-date
-				const relations = buildRelationsQuery(modelName, populate, depth);
+				const skip = (page - 1) * limit;
+				const where = buildWhereConditions(filters);
+				const orderBy = buildOrderBy(sort, order);
+				const include = buildIncludeQuery(populate || undefined, config.relations);
+
+				// Handle search across multiple fields for specific models
+				if (search && where.search !== undefined) {
+					delete where.search;
+					// Add model-specific search logic
+					if (queryKey === "user") {
+						where.OR = [
+							{ name: { contains: search, mode: "insensitive" } },
+							{ email: { contains: search, mode: "insensitive" } },
+						];
+					} else if (queryKey === "product") {
+						where.OR = [
+							{ name: { contains: search, mode: "insensitive" } },
+							{ sku: { contains: search, mode: "insensitive" } },
+							{ description: { contains: search, mode: "insensitive" } },
+						];
+					}
+				}
 
 				// Get total count
-				const totalResult = await db
-					.select({ count: count() })
-					.from(config.table)
-					.where(whereConditions);
-				const total = totalResult[0]?.count || 0;
+				const total = await (db as any)[queryKey].count({ where });
 
-				// Get data with relations
-				const queryConfig = {
-					where: whereConditions,
-					limit,
-					offset,
-					orderBy: orderBy.length > 0 ? orderBy : undefined,
-					...relations,
-				};
-				// @ts-expect-error  - drizzle-orm types are not up-to-date
-				const data = await db.query[queryKey].findMany(queryConfig);
+				// Get data
+				const data = await (db as any)[queryKey].findMany({
+					where,
+					skip,
+					take: limit,
+					orderBy,
+					include,
+				});
 
 				return NextResponse.json({
 					success: true,
@@ -726,17 +423,41 @@ export async function createApiHandler(modelName: string) {
 		async POST(request: NextRequest) {
 			try {
 				const body = await request.json();
+				console.log('Raw request body:', JSON.stringify(body, null, 2));
+				
+				// Clean up empty string fields
+				if (body.managerId === '') {
+					console.log('Removing empty managerId');
+					delete body.managerId;
+				}
+				
+				if (body.roleId === '') {
+					console.log('Removing empty roleId');
+					delete body.roleId;
+				}
+				
+				if (body.departmentId === '') {
+					console.log('Removing empty departmentId');
+					delete body.departmentId;
+				}
+				
+				// Remove budget field for departments as it's not in the current schema
+				if (body.budget !== undefined) {
+					console.log('Removing budget field:', body.budget);
+					delete body.budget;
+				}
+				
+				console.log('Cleaned request body:', JSON.stringify(body, null, 2));
 				const validatedData = config.createSchema.parse(body);
 
-				const result = await db
-					.insert(config.table)
-					.values(validatedData)
-					.returning();
+				const result = await (db as any)[queryKey].create({
+					data: validatedData,
+				});
 
 				return NextResponse.json(
 					{
 						success: true,
-						data: result[0],
+						data: result,
 					},
 					{ status: 201 },
 				);
@@ -764,28 +485,12 @@ export async function createApiHandler(modelName: string) {
 			try {
 				const { searchParams } = new URL(request.url);
 				const populate = searchParams.get("populate");
-				const depth = parseInt(searchParams.get("depth") || "1");
-				// @ts-expect-error  - drizzle-orm types are not up-to-date
-				const relations = buildRelationsQuery(modelName, populate, depth);
+				const include = buildIncludeQuery(populate || undefined, config.relations);
 
-				// biome-ignore lint/suspicious/noImplicitAnyLet: its okay
-				let result;
-				if (Object.keys(relations).length > 0) {
-					// Use query API for relations
-					// @ts-expect-error  - drizzle-orm types are not up-to-date
-					result = await db.query[queryKey].findFirst({
-						where: eq((config.table as any).id, id),
-						...relations,
-					});
-				} else {
-					// Use regular select for simple queries
-					const queryResult = await db
-						.select()
-						.from(config.table)
-						.where(eq((config.table as any).id, id))
-						.limit(1);
-					result = queryResult[0];
-				}
+				const result = await (db as any)[queryKey].findUnique({
+					where: { id },
+					include,
+				});
 
 				if (!result) {
 					return NextResponse.json(
@@ -830,24 +535,16 @@ export async function createApiHandler(modelName: string) {
 				// Add updatedAt timestamp
 				updateData.updatedAt = new Date();
 
-				const result = await db
-					.update(config.table)
-					.set(updateData)
-					.where(eq((config.table as any).id, id))
-					.returning();
-
-				if (result.length === 0) {
-					return NextResponse.json(
-						{ success: false, error: `${modelName} not found` },
-						{ status: 404 },
-					);
-				}
+				const result = await (db as any)[queryKey].update({
+					where: { id },
+					data: updateData,
+				});
 
 				return NextResponse.json({
 					success: true,
-					data: result[0],
+					data: result,
 				});
-			} catch (error) {
+			} catch (error: any) {
 				console.error(`Error updating ${modelName}:`, error);
 				if (error instanceof z.ZodError) {
 					return NextResponse.json(
@@ -857,6 +554,12 @@ export async function createApiHandler(modelName: string) {
 							details: error.issues,
 						},
 						{ status: 400 },
+					);
+				}
+				if (error.code === "P2025") {
+					return NextResponse.json(
+						{ success: false, error: `${modelName} not found` },
+						{ status: 404 },
 					);
 				}
 				return NextResponse.json(
@@ -869,24 +572,19 @@ export async function createApiHandler(modelName: string) {
 		// DELETE /api/[model]/[id] - Delete record
 		async DELETE(_request: NextRequest, id: string) {
 			try {
-				const result = await db
-					.delete(config.table)
-					.where(eq((config.table as any).id, id))
-					.returning();
-
-				if (result.length === 0) {
-					return NextResponse.json(
-						{ success: false, error: `${modelName} not found` },
-						{ status: 404 },
-					);
-				}
 
 				return NextResponse.json({
 					success: true,
 					message: `${modelName} deleted successfully`,
 				});
-			} catch (error) {
+			} catch (error: any) {
 				console.error(`Error deleting ${modelName}:`, error);
+				if (error.code === "P2025") {
+					return NextResponse.json(
+						{ success: false, error: `${modelName} not found` },
+						{ status: 404 },
+					);
+				}
 				return NextResponse.json(
 					{ success: false, error: "Internal server error" },
 					{ status: 500 },

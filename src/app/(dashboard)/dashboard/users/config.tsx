@@ -1,5 +1,6 @@
 import { TableConfig } from "@/components/data-table/data-table";
-import { User } from "@/lib/db";
+import { User } from "@prisma/client";
+
 import { IconArchive, IconDownload, IconMail, IconPrinter, IconUserCheck } from "@tabler/icons-react";
 
 
@@ -197,7 +198,7 @@ export const config: TableConfig<User> = {
 				}
 			},
 			visible: (row: User) => row.status !== "Inactive",
-			disabled: (row: User) => row.status === "Pending",
+			disabled: (row: User) => row.status === "Active",
 			variant: "destructive" as const,
 		},
 		{
@@ -308,7 +309,7 @@ export const config: TableConfig<User> = {
 			visible: (selectedRows: User[]) =>
 				selectedRows.some((user) => user.status !== "Inactive"),
 			disabled: (selectedRows: User[]) =>
-				selectedRows.every((user) => user.status === "Pending"),
+				selectedRows.every((user) => user.status === "Active"),
 			requireSelection: true,
 			variant: "destructive" as const,
 		},

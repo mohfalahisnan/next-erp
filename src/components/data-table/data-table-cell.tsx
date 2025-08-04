@@ -197,3 +197,15 @@ export const CellText = ({ getValue }: CellContext<any, any>) => {
 	const value = getValue();
 	return <div>{value}</div>;
 };
+
+export const CellBoolean = ({ getValue }: CellContext<any, any>) => {
+	const value = getValue();
+	return (
+		<Badge
+			variant={value ? "success" : "secondary"}
+			showIcon={true}
+		>
+			{value as string}
+		</Badge>
+	);
+};

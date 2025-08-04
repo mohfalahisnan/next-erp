@@ -1,13 +1,12 @@
 import { TableConfig } from "@/components/data-table/data-table";
-import { Warehouse } from "@/lib/db";
-import { IconArchive, IconBuildingWarehouse, IconDownload, IconMail, IconPrinter,  } from "@tabler/icons-react";
+import { Warehouse } from "@prisma/client";
+import { IconArchive, IconDownload, IconPrinter,  } from "@tabler/icons-react";
 
 export const config: TableConfig<Warehouse> = {
 	api: {
 		params: {
 			populate: "manager",
 			depth: 2,
-			limit: 10,
 		},
 		model: "warehouses",
 	},
@@ -222,46 +221,7 @@ export const config: TableConfig<Warehouse> = {
 	},
 	withActions: true,
 	withSelect: true,
-	customActions: [
-		{
-			label: "Send Email",
-			icon: <IconMail className="h-4 w-4" />,
-			action: (row: Warehouse) => {
-				console.log("Sending email to warehouse:", row.name);
-			},
-			visible: (row: Warehouse) => !!row.email,
-			variant: "default" as const,
-		},
-		{
-			label: "Export Data",
-			icon: <IconDownload className="h-4 w-4" />,
-			action: (row: Warehouse) => {
-				console.log("Exporting warehouse data:", row.name);
-				// Add export logic here
-			},
-			variant: "outline" as const,
-		},
-		{
-			label: "Deactivate",
-			icon: <IconArchive className="h-4 w-4" />,
-			action: (row: Warehouse) => {
-				console.log("Deactivating warehouse:", row.name);
-				// Add deactivation logic here
-			},
-			visible: (row: Warehouse) => row.isActive === true,
-			variant: "destructive" as const,
-		},
-		{
-			label: "Activate",
-			icon: <IconBuildingWarehouse className="h-4 w-4" />,
-			action: (row: Warehouse) => {
-				console.log("Activating warehouse:", row.name);
-				// Add activation logic here
-			},
-			visible: (row: Warehouse) => !row.isActive,
-			variant: "secondary" as const,
-		},
-	],
+	customActions: [],
 	bulkActions: [
 		{
 			label: "Print Selected",

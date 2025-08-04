@@ -174,8 +174,7 @@ export const menuConfig = {
     {
       title: "Settings",
       url: "#",
-      icon: IconSettings
-      ,
+      icon: IconSettings,
     },
     {
       title: "Help",

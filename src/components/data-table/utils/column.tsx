@@ -3,6 +3,7 @@ import type { DateRange } from "react-day-picker";
 import type { TableConfig } from "../data-table";
 import {
 	CellAction,
+	CellBoolean,
 	CellCurrrency,
 	CellDate,
 	CellEnum,
@@ -140,6 +141,13 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellText {...props} />
+						</div>
+					);
+					break;
+				case "boolean":
+					columnDef.cell = (props) => (
+						<div {...column.cellProps}>
+							<CellBoolean {...props} />
 						</div>
 					);
 					break;

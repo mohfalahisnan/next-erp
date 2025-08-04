@@ -63,6 +63,7 @@ function DataTableHeader({
 		<div>
 			<div className={cn("flex items-center py-4 gap-2", className)}>
 				<div className="flex gap-2 flex-1">
+					
 					{search && (
 						<DataTableSearch table={table} placeholder={searchPlaceholder} />
 					)}

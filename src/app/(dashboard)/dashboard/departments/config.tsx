@@ -1,5 +1,7 @@
 import { TableConfig } from "@/components/data-table/data-table";
-import { Department } from "@/lib/db";
+import { Badge } from "@/components/ui/badge";
+import { Department } from "@prisma/client";
+
 import { IconArchive, IconDownload, IconPrinter } from "@tabler/icons-react";
 
 export const config: TableConfig<Department> = {
@@ -25,9 +27,11 @@ export const config: TableConfig<Department> = {
 			headerLabel: "Manager",
 		},
 		{
-			accessorKey: "budget",
-			cellType: "currency",
-			headerFilterType: "range",
+			accessorKey: "isActive",
+			headerLabel:"Active",
+			renderCell(props) {
+				return <Badge showIcon variant={props.getValue() === true ? "active" : "inactive"}>{props.getValue() === true ? "Active" : "Inactive"}</Badge>
+			},
 		},
 		{
 			accessorKey: "createdAt",
@@ -65,11 +69,11 @@ export const config: TableConfig<Department> = {
 				},
 			},
 			{
-				accessorKey: "budget",
+				accessorKey: "isActive",
 				config: {
-					type: "number",
-					label: "Budget",
-					placeholder: "Enter budget amount",
+					type: "checkbox",
+					label: "Active",
+					// defaultValue: true,
 				},
 			},
 		],
@@ -78,6 +82,9 @@ export const config: TableConfig<Department> = {
 		dateColumnId: "createdAt",
 		filterDate: true,
 		showCreateButton: true,
+		filterOptions: [
+			
+		],
 	},
 	withActions: true,
 	withSelect: true,
