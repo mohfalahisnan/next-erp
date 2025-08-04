@@ -1,4 +1,4 @@
-import { decimal, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { decimal, pgTable, text } from "drizzle-orm/pg-core";
 import { baseFields } from "./base";
 
 // Departments table
@@ -7,7 +7,7 @@ export const departments = pgTable("departments", {
 	name: text("name").notNull(),
 	description: text("description"),
 	budget: decimal("budget", { precision: 12, scale: 2 }),
-	managerId: uuid("manager_id"),
+	managerId: text("manager_id"),
 });
 
 // Export types

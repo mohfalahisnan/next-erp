@@ -9,36 +9,63 @@ export const menuConfig = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/",
+      url: "/dashboard",
       icon: IconDashboard,
     },
-{
-  title: "Products",
-  url: "#",
-  icon: IconPackage,
-  items: [
     {
-      title: "Product Catalog",
-      url: "/products/catalog",
-      icon: IconDatabase,
+      title: "Organization",
+      url: "#",
+      icon: IconBuilding,
+      items: [
+        {
+          title: "Users",
+          url: "/dashboard/users",
+          icon: IconDatabase,
+        },
+        {
+          title: "Departments",
+          url: "/dashboard/departments",
+          icon: IconBuilding,
+        },
+        {
+          title: "Roles",
+          url: "/dashboard/roles",
+          icon: IconShield,
+        },
+        {
+          title: "Projects",
+          url: "/dashboard/projects",
+          icon: IconFileDescription,
+        },
+      ],
     },
     {
-      title: "Categories",
-      url: "/products/categories", 
-      icon: IconFileDescription,
-    },
-    {
-      title: "Pricing",
-      url: "/products/pricing",
-      icon: IconChartBar,
-    },
-    {
-      title: "Product Variants",
-      url: "/products/variants",
+      title: "Products",
+      url: "#",
       icon: IconPackage,
-    }
-  ],
-},
+      items: [
+        {
+          title: "Product Catalog",
+          url: "/dashboard/products",
+          icon: IconPackage,
+        },
+        {
+          title: "Categories",
+          url: "/dashboard/product-categories",
+          icon: IconFileDescription,
+        },
+        {
+          title: "Product Variants",
+          url: "/dashboard/product-variants",
+          icon: IconPackage,
+        },
+        {
+          title: "Suppliers",
+          url: "/dashboard/suppliers",
+          icon: IconTruck,
+        },
+      ],
+    },
     {
       title: "Warehouse",
       url: "#",
@@ -46,84 +73,72 @@ export const menuConfig = {
       items: [
         {
           title: "Storage Locations",
-          url: "/warehouses",
+          url: "/dashboard/warehouses",
           icon: IconBuilding,
         },
         {
           title: "Inventory",
-          url: "/warehouse/inventory",
+          url: "/dashboard/inventory",
           icon: IconPackage,
         },
         {
-          title: "Stock Movement",
-          url: "/warehouse/movement",
+          title: "Stock Movements",
+          url: "/dashboard/inventory-movements",
           icon: IconTruck,
         },
+        {
+          title: "Transfers",
+          url: "/dashboard/transfers",
+          icon: IconTruck,
+        },
+        {
+          title: "Transfer Items",
+          url: "/dashboard/transfer-items",
+          icon: IconPackage,
+        },
       ],
     },
     {
-      title: "Inventory Management",
+      title: "Customers",
       url: "#",
-      icon: IconPackage,
+      icon: IconShoppingCart,
       items: [
         {
-          title: "Stock Levels",
-          url: "/inventory/stock",
-          icon: IconDatabase,
+          title: "Customer List",
+          url: "/dashboard/customers",
+          icon: IconShoppingCart,
         },
         {
-          title: "Reorder Points",
-          url: "/inventory/reorder",
-          icon: IconReport,
-        },
-        {
-          title: "Batch Tracking",
-          url: "/inventory/batches",
-          icon: IconSearch,
+          title: "Customer Addresses",
+          url: "/dashboard/customer-addresses",
+          icon: IconBuilding,
         },
       ],
     },
     {
-      title: "Operations",
+      title: "Orders & Shipping",
       url: "#",
       icon: IconTruck,
       items: [
         {
-          title: "Receiving",
-          url: "/operations/receiving",
-          icon: IconTruck,
+          title: "Orders",
+          url: "/dashboard/orders",
+          icon: IconShoppingCart,
         },
         {
-          title: "Picking",
-          url: "/operations/picking",
+          title: "Order Items",
+          url: "/dashboard/order-items",
           icon: IconPackage,
         },
         {
-          title: "Shipping",
-          url: "/operations/shipping",
-          icon: IconShoppingCart,
-        },
-      ],
-    },
-    {
-      title: "Quality Control",
-      url: "#",
-      icon: IconCheck,
-      items: [
-        {
-          title: "Inspections",
-          url: "/quality/inspections",
-          icon: IconSearch,
-        },
-        {
-          title: "Returns",
-          url: "/quality/returns",
+          title: "Shipments",
+          url: "/dashboard/shipments",
           icon: IconTruck,
         },
         {
-          title: "Quarantine",
-          url: "/quality/quarantine",
-          icon: IconShield,
+          title: "Carriers",
+          url: "/dashboard/carriers",
+          icon: IconTruck,
         },
       ],
     },

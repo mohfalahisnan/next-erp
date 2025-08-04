@@ -100,12 +100,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		updateSchema: updateBasicSchema(productCategories),
 		relations: ["products"],
 	},
-	"product-categories": {
-		table: productCategories,
-		createSchema: createBasicSchema(productCategories),
-		updateSchema: updateBasicSchema(productCategories),
-		relations: ["products"],
-	},
 	suppliers: {
 		table: suppliers,
 		createSchema: createBasicSchema(suppliers),
@@ -124,12 +118,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		updateSchema: updateBasicSchema(productVariants),
 		relations: ["product", "inventory"],
 	},
-	"product-variants": {
-		table: productVariants,
-		createSchema: createBasicSchema(productVariants),
-		updateSchema: updateBasicSchema(productVariants),
-		relations: ["product", "inventory"],
-	},
 	inventory: {
 		table: inventory,
 		createSchema: createBasicSchema(inventory),
@@ -137,12 +125,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		relations: ["productVariant", "warehouse", "movements"],
 	},
 	inventoryMovements: {
-		table: inventoryMovements,
-		createSchema: createBasicSchema(inventoryMovements),
-		updateSchema: updateBasicSchema(inventoryMovements),
-		relations: ["inventory", "user"],
-	},
-	"inventory-movements": {
 		table: inventoryMovements,
 		createSchema: createBasicSchema(inventoryMovements),
 		updateSchema: updateBasicSchema(inventoryMovements),
@@ -160,12 +142,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		updateSchema: updateBasicSchema(transferItems),
 		relations: ["transfer", "productVariant"],
 	},
-	"transfer-items": {
-		table: transferItems,
-		createSchema: createBasicSchema(transferItems),
-		updateSchema: updateBasicSchema(transferItems),
-		relations: ["transfer", "productVariant"],
-	},
 	customers: {
 		table: customers,
 		createSchema: createBasicSchema(customers),
@@ -173,12 +149,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		relations: ["addresses", "orders"],
 	},
 	customerAddresses: {
-		table: customerAddresses,
-		createSchema: createBasicSchema(customerAddresses),
-		updateSchema: updateBasicSchema(customerAddresses),
-		relations: ["customer"],
-	},
-	"customer-addresses": {
 		table: customerAddresses,
 		createSchema: createBasicSchema(customerAddresses),
 		updateSchema: updateBasicSchema(customerAddresses),
@@ -197,12 +167,6 @@ export const modelRegistry: Record<string, ModelConfig> = {
 		relations: ["customer", "warehouse", "items", "shipments"],
 	},
 	orderItems: {
-		table: orderItems,
-		createSchema: createBasicSchema(orderItems),
-		updateSchema: updateBasicSchema(orderItems),
-		relations: ["order", "productVariant"],
-	},
-	"order-items": {
 		table: orderItems,
 		createSchema: createBasicSchema(orderItems),
 		updateSchema: updateBasicSchema(orderItems),
@@ -627,11 +591,46 @@ function getTargetModelName(parentField: string, nestedField: string): string | 
 	return fieldToModelMap[parentField] || null;
 }
 
+// Map lowercase model names to drizzle query keys
+const modelToQueryMap: Record<string, string> = {
+	user: "user",
+	departments: "departments",
+	roles: "roles",
+	projects: "projects",
+	warehouses: "warehouses",
+	productcategories: "productCategories",
+	"product-categories": "productCategories",
+	suppliers: "suppliers",
+	products: "products",
+	productvariant: "productVariants",
+	productvariants: "productVariants",
+	"product-variants": "productVariants",
+	inventory: "inventory",
+	inventorymovements: "inventoryMovements",
+	"inventory-movements": "inventoryMovements",
+	transfers: "transfers",
+	transferitems: "transferItems",
+	"transfer-items": "transferItems",
+	customers: "customers",
+	customeraddresses: "customerAddresses",
+	"customer-addresses": "customerAddresses",
+	carriers: "carriers",
+	orders: "orders",
+	orderitems: "orderItems",
+	"order-items": "orderItems",
+	shipments: "shipments"
+};
+
 // Generic API handler
 export async function createApiHandler(modelName: string) {
 	const config = modelRegistry[modelName.toLowerCase()];
 	if (!config) {
 		throw new Error(`Model ${modelName} not found`);
+	}
+	
+	const queryKey = modelToQueryMap[modelName.toLowerCase()];
+	if (!queryKey) {
+		throw new Error(`Query key for model ${modelName} not found`);
 	}
 
 	return {
@@ -702,7 +701,7 @@ export async function createApiHandler(modelName: string) {
 					...relations,
 				};
 				// @ts-expect-error  - drizzle-orm types are not up-to-date
-				const data = await db.query[modelName].findMany(queryConfig);
+				const data = await db.query[queryKey].findMany(queryConfig);
 
 				return NextResponse.json({
 					success: true,
@@ -774,7 +773,7 @@ export async function createApiHandler(modelName: string) {
 				if (Object.keys(relations).length > 0) {
 					// Use query API for relations
 					// @ts-expect-error  - drizzle-orm types are not up-to-date
-					result = await db.query[modelName].findFirst({
+					result = await db.query[queryKey].findFirst({
 						where: eq((config.table as any).id, id),
 						...relations,
 					});

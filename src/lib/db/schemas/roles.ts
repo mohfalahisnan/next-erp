@@ -1,4 +1,4 @@
-import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text } from "drizzle-orm/pg-core";
 import { baseFields } from "./base";
 
 // Roles table
@@ -7,7 +7,7 @@ export const roles = pgTable("roles", {
 	name: text("name").notNull(),
 	description: text("description"),
 	permissions: text("permissions").array(),
-	departmentId: uuid("department_id"),
+	departmentId: text("department_id"),
 });
 
 // Export types
