@@ -1,141 +1,61 @@
-import { StatusCodes } from "http-status-codes";
-import { type NextRequest, NextResponse } from "next/server";
-import { createApiHandler, modelRegistry } from "@/lib/api-handler";
-import { createApiError } from "@/lib/api-schemas";
+import { createApiError, createApiResponse } from "@/lib/api-schemas";
+import db from "@/lib/db";
+import { buildPopulateInclude, parsePopulateParams } from "@/lib/populate-utils";
+import { NextResponse } from "next/server";
 
-// Valid model names for Drizzle
-const validModels = Object.keys(modelRegistry).map((key) => key.toLowerCase());
-
-function isValidModelName(modelName: string): boolean {
-	return validModels.includes(modelName.toLowerCase());
-}
-
-// GET /api/{model} - List items
-export async function GET(
-	request: NextRequest,
-	{ params }: { params: Promise<{ model: string[] }> },
-) {
-	const { model } = await params;
-	const modelName = model[0].toLowerCase();
+export const GET = async (req: Request,{params}:{params:Promise<{model:string[]}>}) => {
+	const {model} = await params;
 	const id = model[1];
 
-	if (!isValidModelName(modelName)) {
+	const url = new URL(req.url);
+	const searchParams = url.searchParams;
+	
+	// Parse populate and depth parameters
+	const { populate, depth } = parsePopulateParams(searchParams);
+	
+	console.log(`Model: ${model[0]}, ID: ${id || 'none'}, Populate: ${populate.join(",")}, Depth: ${depth}`);
+	
+	const modelName = model[0] as unknown as any;
+
+	if (!Object.keys(db).includes(modelName)) {
 		return NextResponse.json(
-			createApiError(
-				"Invalid model",
-				`Model '${modelName}' is not supported. Available models: users, departments, projects, roles`,
-				"BAD_REQUEST",
-			),
-			{ status: StatusCodes.BAD_REQUEST },
-		);
+			createApiError("Invalid model name","Invalid Model Name","NOT_FOUND"))
 	}
 
-	try {
-		const handler = await createApiHandler(modelName);
-		
-		if (id) {
-			return handler.GETById(request, id);
+	const entity = db[modelName] as any;
+
+	// Build include object with validated fields and depth support
+	const include = buildPopulateInclude(modelName, populate, depth);
+
+	let data;
+	
+	if (id) {
+		// Find single record by ID
+		try {
+			data = await entity.findUnique({
+				where: { id },
+				...(Object.keys(include).length > 0 && { include })
+			});
+			
+			if (!data) {
+				return NextResponse.json(
+					createApiError("Record not found","Record Not Found","NOT_FOUND")
+				);
+			}
+		} catch (error) {
+			console.error('Error finding record by ID:', error);
+			return NextResponse.json(
+				createApiError("Invalid ID format or database error","Bad Request","BAD_REQUEST")
+			);
 		}
-
-		return handler.GET(request);
-	} catch (error) {
-		console.error('Error in GET handler:', error);
-		return NextResponse.json(
-			createApiError("Internal server error", "An unexpected error occurred", "INTERNAL_SERVER_ERROR"),
-			{ status: StatusCodes.INTERNAL_SERVER_ERROR }
-		);
+	} else {
+		// Find all records
+		data = await entity.findMany({
+			...(Object.keys(include).length > 0 && { include })
+		});
 	}
-}
+	
+	const res = createApiResponse(data,10,1,10,"Success","OK");
+	return NextResponse.json(res);
+};
 
-// POST /api/{model} - Create new item
-export async function POST(
-	request: NextRequest,
-	{ params }: { params: Promise<{ model: string[] }> },
-) {
-	const { model } = await params;
-	const modelName = model[0].toLowerCase();
-
-	if (!isValidModelName(modelName)) {
-		return NextResponse.json(
-			createApiError(
-				"Invalid model",
-				`Model '${modelName}' is not supported. Available models: users, departments, projects, roles`,
-				"BAD_REQUEST",
-			),
-			{ status: StatusCodes.BAD_REQUEST },
-		);
-	}
-
-	try {
-		const handler = await createApiHandler(modelName);
-		return handler.POST(request);
-	} catch (error) {
-		console.error('Error in POST handler:', error);
-		return NextResponse.json(
-			createApiError("Internal server error", "An unexpected error occurred", "INTERNAL_SERVER_ERROR"),
-			{ status: StatusCodes.INTERNAL_SERVER_ERROR }
-		);
-	}
-}
-
-export async function PATCH(
-	request: NextRequest,
-	{ params }: { params: Promise<{ model: string[] }> },
-) {
-	const { model } = await params;
-	const modelName = model[0].toLowerCase();
-	const id = model[1];
-
-	if (!isValidModelName(modelName)) {
-		return NextResponse.json(
-			createApiError(
-				"Invalid model",
-				`Model '${modelName}' is not supported. Available models: users, departments, projects, roles`,
-				"BAD_REQUEST",
-			),
-			{ status: StatusCodes.BAD_REQUEST },
-		);
-	}
-
-	try {
-		const handler = await createApiHandler(modelName);
-		return handler.PATCH(request, id);
-	} catch (error) {
-		console.error('Error in PATCH handler:', error);
-		return NextResponse.json(
-			createApiError("Internal server error", "An unexpected error occurred", "INTERNAL_SERVER_ERROR"),
-			{ status: StatusCodes.INTERNAL_SERVER_ERROR }
-		);
-	}
-}
-
-export async function DELETE(
-	request: NextRequest,
-	{ params }: { params: Promise<{ model: string[] }> },
-) {
-	const { model } = await params;
-	const modelName = model[0].toLowerCase();
-	const id = model[1];
-
-	if (!isValidModelName(modelName)) {
-		return NextResponse.json(
-			createApiError(
-				"Invalid model",
-				`Model '${modelName}' is not supported. Available models: users, departments, projects, roles`,
-				"BAD_REQUEST",
-			),
-			{ status: StatusCodes.BAD_REQUEST },
-		);
-	}
-
-	try {
-		const handler = await createApiHandler(modelName);
-		return handler.DELETE(request, id);
-	} catch (error) {
-		console.error('Error in DELETE handler:', error);
-		return NextResponse.json(
-			createApiError("Internal server error", "An unexpected error occurred", "INTERNAL_SERVER_ERROR"),
-			{ status: StatusCodes.INTERNAL_SERVER_ERROR }
-		);
-	}
-}

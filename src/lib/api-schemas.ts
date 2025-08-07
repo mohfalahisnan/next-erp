@@ -1,18 +1,27 @@
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 
+// Pagination Schema
+export const PaginationSchema = z.object({
+	page: z.number().min(1),
+	limit: z.number().min(1).max(100),
+	total: z.number(),
+	pages: z.number(),
+});
+
+export type Pagination = {
+	page: number;
+	limit: number;
+	total: number;
+	pages: number;
+};
+
+
 // Standardized API Response Schema (matching actual API format)
 export const ApiResponseSchema = z.object({
 	success: z.boolean(),
 	data: z.union([z.array(z.unknown()), z.unknown()]), // Can be array or single object
-	pagination: z
-		.object({
-			page: z.number(),
-			limit: z.number(),
-			total: z.number(),
-			pages: z.number(),
-		})
-		.optional(),
+	pagination: PaginationSchema.optional(),
 	message: z.string().optional(),
 	code: z.number(),
 });
@@ -21,14 +30,7 @@ export const ApiResponseSchema = z.object({
 export const ApiListResponseSchema = z.object({
 	success: z.boolean(),
 	data: z.array(z.unknown()),
-	pagination: z
-		.object({
-			page: z.number(),
-			limit: z.number(),
-			total: z.number(),
-			pages: z.number(),
-		})
-		.optional(),
+	pagination: PaginationSchema.optional(),
 	message: z.string().optional(),
 	code: z.number(),
 });
@@ -44,12 +46,7 @@ export const ApiItemResponseSchema = z.object({
 export type ApiResponse<T = unknown> = {
 	success: boolean;
 	data: T[];
-	pagination?: {
-		page: number;
-		limit: number;
-		total: number;
-		pages: number;
-	};
+	pagination?: Pagination;
 	message?: string;
 	code: number;
 };
@@ -69,20 +66,7 @@ export type ApiError = {
 	code: number;
 };
 
-// Pagination Schema
-export const PaginationSchema = z.object({
-	page: z.number().min(1),
-	pageSize: z.number().min(1).max(100),
-	total: z.number(),
-	pages: z.number(),
-});
 
-export type Pagination = {
-	page: number;
-	pageSize: number;
-	total: number;
-	pages: number;
-};
 
 // Filter Schema
 export const FilterSchema = z.object({

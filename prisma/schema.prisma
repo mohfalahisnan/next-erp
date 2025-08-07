@@ -10,6 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator zod {
+  provider      = "zod-prisma"
+  output        = "../src/schema"
+  relationModel = true
+  modelCase     = "PascalCase"
+  modelSuffix   = "Model"
+}
+
 // Enums
 enum Status {
   Active
