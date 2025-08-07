@@ -1,10 +1,14 @@
-# API ID Functionality
+# API ID-Based Functionality Documentation
 
-This document explains the ID-based functionality added to the ERP API routes, allowing you to fetch single records by their unique identifier.
+This document explains the ID-based functionality added to the Next.js ERP API, allowing you to fetch individual records by their unique identifier. This is part of the comprehensive CRUD operations system.
 
 ## Overview
 
-The API now supports two types of requests:
+The API now supports full CRUD operations (Create, Read, Update, Delete) with ID-based functionality for single record operations. This enhancement maintains full compatibility with existing populate and depth parameters while providing complete data management capabilities.
+
+> **Note:** For complete CRUD operations documentation, see [CRUD Operations Guide](./crud-operations.md).
+
+The API supports two types of read requests:
 1. **Get All Records**: Fetch multiple records from a model
 2. **Get Single Record by ID**: Fetch a specific record using its unique identifier
 

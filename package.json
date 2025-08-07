@@ -18,6 +18,7 @@
     "test:populate-id": "node test-id-with-populate.js",
     "test:populate": "node test-populate-depth.js",
     "test:relations": "node test-automated-relations.js",
+    "test:crud": "node test-crud-operations.js",
     "postinstall": "pnpm run db:generate && pnpm run generate:relations"
   },
   "dependencies": {
