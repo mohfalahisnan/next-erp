@@ -92,10 +92,9 @@ export const config: TableConfig<User> = {
 			},
 			{
 				accessorKey: 'roleId',
-
 				config: {
 					type: 'dynamic-select',
-					model: 'roles',
+					model: 'role',
 					valueKey: 'id',
 					labelKey: 'name',
 					label: 'Role',
@@ -103,10 +102,9 @@ export const config: TableConfig<User> = {
 			},
 			{
 				accessorKey: 'departmentId',
-
 				config: {
 					type: 'dynamic-select',
-					model: 'departments',
+					model: 'department',
 					valueKey: 'id',
 					labelKey: 'name',
 					label: 'Department',
@@ -289,7 +287,7 @@ export const config: TableConfig<User> = {
 						user.status,
 					]),
 				]
-					.map((row) => row.join(','))
+					.map(row => row.join(','))
 					.join('\n');
 
 				// Download CSV file
@@ -312,9 +310,9 @@ export const config: TableConfig<User> = {
 				alert(`Archiving ${selectedRows.length} users`);
 			},
 			visible: (selectedRows: User[]) =>
-				selectedRows.some((user) => user.status !== 'Inactive'),
+				selectedRows.some(user => user.status !== 'Inactive'),
 			disabled: (selectedRows: User[]) =>
-				selectedRows.every((user) => user.status === 'Active'),
+				selectedRows.every(user => user.status === 'Active'),
 			requireSelection: true,
 			variant: 'destructive' as const,
 		},

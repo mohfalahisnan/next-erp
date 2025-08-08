@@ -6,12 +6,23 @@ import {
 } from '@/lib/populate-utils';
 import { NextResponse } from 'next/server';
 
+const getModelName = async (params: Promise<{ model: string[] }>) => {
+	const { model } = await params;
+	const currentModel = model[0];
+	const id = model[1];
+	console.log('currentModel', currentModel);
+
+	return {
+		model: currentModel,
+		id: id || undefined,
+	};
+};
+
 export const GET = async (
 	req: Request,
 	{ params }: { params: Promise<{ model: string[] }> }
 ) => {
-	const { model } = await params;
-	const id = model[1];
+	const { model, id } = await getModelName(params);
 
 	const url = new URL(req.url);
 	const searchParams = url.searchParams;
@@ -19,13 +30,21 @@ export const GET = async (
 	// Parse populate and depth parameters
 	const { populate, depth } = parsePopulateParams(searchParams);
 
+	// Parse pagination parameters
+	const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+	const limit = Math.min(
+		100,
+		Math.max(1, parseInt(searchParams.get('limit') || '10', 10))
+	);
+	const skip = (page - 1) * limit;
+
 	console.log(
-		`Model: ${model[0]}, ID: ${id || 'none'}, Populate: ${populate.join(
+		`Model: ${model}, ID: ${id || 'none'}, Populate: ${populate.join(
 			','
-		)}, Depth: ${depth}`
+		)}, Depth: ${depth}, Page: ${page}, Limit: ${limit}`
 	);
 
-	const modelName = model[0] as unknown as any;
+	const modelName = model as unknown as any;
 
 	if (!Object.keys(db).includes(modelName)) {
 		return NextResponse.json(
@@ -43,6 +62,7 @@ export const GET = async (
 	const include = buildPopulateInclude(modelName, populate, depth);
 
 	let data;
+	let total = 0;
 
 	if (id) {
 		// Find single record by ID
@@ -61,6 +81,13 @@ export const GET = async (
 					)
 				);
 			}
+			// For single record, return without pagination
+			return NextResponse.json({
+				success: true,
+				data,
+				message: 'Success',
+				code: 200,
+			});
 		} catch (error) {
 			console.error('Error finding record by ID:', error);
 			return NextResponse.json(
@@ -72,13 +99,18 @@ export const GET = async (
 			);
 		}
 	} else {
-		// Find all records
-		data = await entity.findMany({
-			...(Object.keys(include).length > 0 && { include }),
-		});
+		// Find all records with pagination
+		[data, total] = await Promise.all([
+			entity.findMany({
+				skip,
+				take: limit,
+				...(Object.keys(include).length > 0 && { include }),
+			}),
+			entity.count(),
+		]);
 	}
 
-	const res = createApiResponse(data, 10, 1, 10, 'Success', 'OK');
+	const res = createApiResponse(data, total, page, limit, 'Success', 'OK');
 	return NextResponse.json(res);
 };
 
@@ -86,8 +118,8 @@ export const POST = async (
 	req: Request,
 	{ params }: { params: Promise<{ model: string[] }> }
 ) => {
-	const { model } = await params;
-	const modelName = model[0] as unknown as any;
+	const { model } = await getModelName(params);
+	const modelName = model as unknown as any;
 
 	if (!Object.keys(db).includes(modelName)) {
 		return NextResponse.json(
@@ -115,9 +147,9 @@ export const POST = async (
 
 		const res = createApiResponse(
 			data,
-			1,
-			1,
-			1,
+			undefined,
+			undefined,
+			undefined,
 			'Created successfully',
 			'CREATED'
 		);
@@ -139,9 +171,8 @@ export const PUT = async (
 	req: Request,
 	{ params }: { params: Promise<{ model: string[] }> }
 ) => {
-	const { model } = await params;
-	const modelName = model[0] as unknown as any;
-	const id = model[1];
+	const { model, id } = await getModelName(params);
+	const modelName = model as unknown as any;
 
 	if (!id) {
 		return NextResponse.json(
@@ -194,9 +225,9 @@ export const PUT = async (
 
 		const res = createApiResponse(
 			data,
-			1,
-			1,
-			1,
+			undefined,
+			undefined,
+			undefined,
 			'Updated successfully',
 			'OK'
 		);
@@ -218,9 +249,8 @@ export const PATCH = async (
 	req: Request,
 	{ params }: { params: Promise<{ model: string[] }> }
 ) => {
-	const { model } = await params;
-	const modelName = model[0] as unknown as any;
-	const id = model[1];
+	const { model, id } = await getModelName(params);
+	const modelName = model as unknown as any;
 
 	if (!id) {
 		return NextResponse.json(
@@ -273,9 +303,9 @@ export const PATCH = async (
 
 		const res = createApiResponse(
 			data,
-			1,
-			1,
-			1,
+			undefined,
+			undefined,
+			undefined,
 			'Updated successfully',
 			'OK'
 		);
@@ -297,9 +327,8 @@ export const DELETE = async (
 	_req: Request,
 	{ params }: { params: Promise<{ model: string[] }> }
 ) => {
-	const { model } = await params;
-	const modelName = model[0] as unknown as any;
-	const id = model[1];
+	const { model, id } = await getModelName(params);
+	const modelName = model as unknown as any;
 
 	if (!id) {
 		return NextResponse.json(
@@ -344,9 +373,9 @@ export const DELETE = async (
 
 		const res = createApiResponse(
 			[],
-			0,
-			1,
-			0,
+			undefined,
+			undefined,
+			undefined,
 			'Deleted successfully',
 			'OK'
 		);

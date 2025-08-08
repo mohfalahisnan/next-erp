@@ -44,7 +44,7 @@ export const ApiItemResponseSchema = z.object({
 
 export type ApiResponse<T = unknown> = {
 	success: boolean;
-	data: T[];
+	data: T[] | T;
 	pagination?: Pagination;
 	message?: string;
 	code: number;
@@ -127,22 +127,26 @@ export type QueryParams = {
 
 // Helper function to create standardized API response
 export function createApiResponse<T>(
-	data: T[],
-	total: number,
-	page: number,
-	pageSize: number,
+	data: T[] | T,
+	total: number = 0,
+	page: number = 1,
+	pageSize: number = 10,
 	message?: string,
 	code?: keyof typeof StatusCodes
 ): ApiResponse<T> {
+	const isArray = Array.isArray(data);
+
 	return {
 		success: true,
 		data,
-		pagination: {
-			page,
-			limit: pageSize,
-			total,
-			pages: Math.ceil(total / pageSize),
-		},
+		...(isArray && {
+			pagination: {
+				page,
+				limit: pageSize,
+				total,
+				pages: Math.ceil(total / pageSize),
+			},
+		}),
 		message,
 		code: code ? StatusCodes[code] : StatusCodes.OK,
 	};

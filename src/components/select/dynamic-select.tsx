@@ -1,6 +1,4 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import type { FormProps } from 'react-hook-form';
 import {
 	Select,
 	SelectContent,
@@ -10,6 +8,8 @@ import {
 } from '@/components/ui/select';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import type { FormProps } from 'react-hook-form';
 
 interface DynamicSelect {
 	model: string;
@@ -29,7 +29,9 @@ export function DynamicSelect(props: DynamicSelect) {
 	const data = useQuery({
 		queryKey: ['dynamic-select', props.model],
 		queryFn: async () => {
-			const res = await api.get(`/${props.model}?${props.query || ''}`);
+			const res = await api.get(
+				`/${props.model}${props?.query ? '?' : ''}${props.query || ''}`
+			);
 			return res.data;
 		},
 	});
