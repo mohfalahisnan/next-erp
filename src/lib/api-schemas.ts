@@ -1,5 +1,5 @@
-import { StatusCodes } from "http-status-codes";
-import { z } from "zod";
+import { StatusCodes } from 'http-status-codes';
+import { z } from 'zod';
 
 // Pagination Schema
 export const PaginationSchema = z.object({
@@ -15,7 +15,6 @@ export type Pagination = {
 	total: number;
 	pages: number;
 };
-
 
 // Standardized API Response Schema (matching actual API format)
 export const ApiResponseSchema = z.object({
@@ -66,21 +65,19 @@ export type ApiError = {
 	code: number;
 };
 
-
-
 // Filter Schema
 export const FilterSchema = z.object({
 	field: z.string(),
 	operator: z.enum([
-		"eq",
-		"ne",
-		"gt",
-		"gte",
-		"lt",
-		"lte",
-		"contains",
-		"startsWith",
-		"endsWith",
+		'eq',
+		'ne',
+		'gt',
+		'gte',
+		'lt',
+		'lte',
+		'contains',
+		'startsWith',
+		'endsWith',
 	]),
 	value: z.unknown(),
 });
@@ -88,27 +85,27 @@ export const FilterSchema = z.object({
 export type Filter = {
 	field: string;
 	operator:
-		| "eq"
-		| "ne"
-		| "gt"
-		| "gte"
-		| "lt"
-		| "lte"
-		| "contains"
-		| "startsWith"
-		| "endsWith";
+		| 'eq'
+		| 'ne'
+		| 'gt'
+		| 'gte'
+		| 'lt'
+		| 'lte'
+		| 'contains'
+		| 'startsWith'
+		| 'endsWith';
 	value: unknown;
 };
 
 // Sort Schema
 export const SortSchema = z.object({
 	field: z.string(),
-	direction: z.enum(["asc", "desc"]),
+	direction: z.enum(['asc', 'desc']),
 });
 
 export type Sort = {
 	field: string;
-	direction: "asc" | "desc";
+	direction: 'asc' | 'desc';
 };
 
 // Query Parameters Schema
@@ -135,7 +132,7 @@ export function createApiResponse<T>(
 	page: number,
 	pageSize: number,
 	message?: string,
-	code?: keyof typeof StatusCodes,
+	code?: keyof typeof StatusCodes
 ): ApiResponse<T> {
 	return {
 		success: true,
@@ -155,7 +152,7 @@ export function createApiResponse<T>(
 export function createApiError(
 	message: string,
 	error?: string,
-	code?: keyof typeof StatusCodes,
+	code?: keyof typeof StatusCodes
 ): ApiError {
 	return {
 		success: false,

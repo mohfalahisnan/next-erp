@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
 	type CellContext,
@@ -7,10 +7,10 @@ import {
 	getCoreRowModel,
 	type HeaderContext,
 	useReactTable,
-} from "@tanstack/react-table";
-import { parseAsInteger, useQueryStates } from "nuqs";
-import React from "react";
-import type { z } from "zod";
+} from '@tanstack/react-table';
+import { parseAsInteger, useQueryStates } from 'nuqs';
+import React from 'react';
+import type { z } from 'zod';
 import {
 	Table,
 	TableBody,
@@ -18,40 +18,40 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
 	type UseDynamicDataOptions,
 	useDynamicData,
-} from "@/hooks/use-dynamic-data";
-import axios from "@/lib/axios";
-import { DataTableProvider, useDataTable } from "./data-table-context";
+} from '@/hooks/use-dynamic-data';
+import axios from '@/lib/axios';
+import { DataTableProvider, useDataTable } from './data-table-context';
 import {
 	DataTableDeleteDialog,
 	DataTableForm,
 	DataTableViewDialog,
-} from "./data-table-form";
+} from './data-table-form';
 import DataTableHeader, {
 	type DataTableHeaderProps,
-} from "./data-table-header";
-import type { DataTablePaginationProps } from "./data-table-pagination";
-import DataTablePagination from "./data-table-pagination";
-import { createColumns } from "./utils/column";
+} from './data-table-header';
+import type { DataTablePaginationProps } from './data-table-pagination';
+import DataTablePagination from './data-table-pagination';
+import { createColumns } from './utils/column';
 
 // Custom filter function for date range
 // Improved type definitions with better naming and structure
 type StaticInputType =
-	| "text"
-	| "email"
-	| "select"
-	| "number"
-	| "date"
-	| "textarea"
-	| "dateRange"
-	| "richText"
-	| "tags"
-	| "checkbox";
+	| 'text'
+	| 'email'
+	| 'select'
+	| 'number'
+	| 'date'
+	| 'textarea'
+	| 'dateRange'
+	| 'richText'
+	| 'tags'
+	| 'checkbox';
 
-type DynamicInputType = "dynamic-select";
+type DynamicInputType = 'dynamic-select';
 
 export type InputType = StaticInputType | DynamicInputType;
 
@@ -99,26 +99,26 @@ type DynamicFormConfig = BaseFormConfig & {
 export type FormConfig = StaticFormConfig | DynamicFormConfig;
 
 export type CellType =
-	| "currency"
-	| "status"
-	| "action"
-	| "text"
-	| "date"
-	| "select"
-	| "email"
-	| "enum"
-	| "boolean";
+	| 'currency'
+	| 'status'
+	| 'action'
+	| 'text'
+	| 'date'
+	| 'select'
+	| 'email'
+	| 'enum'
+	| 'boolean';
 
 export type HeaderFilterType =
-	| "text"
-	| "select"
-	| "date"
-	| "dateRange"
-	| "enum"
-	| "range"
-	| "number"
-	| "boolean"
-	| "multiSelect";
+	| 'text'
+	| 'select'
+	| 'date'
+	| 'dateRange'
+	| 'enum'
+	| 'range'
+	| 'number'
+	| 'boolean'
+	| 'multiSelect';
 
 // Separate column configuration for table display
 export type ColumnConfig<T> = {
@@ -174,7 +174,7 @@ export type CustomAction<T> = {
 	action: (row: T) => void | Promise<void>;
 	visible?: (row: T) => boolean;
 	disabled?: (row: T) => boolean;
-	variant?: "default" | "destructive" | "outline" | "secondary";
+	variant?: 'default' | 'destructive' | 'outline' | 'secondary';
 };
 
 export type BulkAction<T> = {
@@ -183,7 +183,7 @@ export type BulkAction<T> = {
 	action: (selectedRows: T[]) => void | Promise<void>;
 	visible?: (selectedRows: T[]) => boolean;
 	disabled?: (selectedRows: T[]) => boolean;
-	variant?: "default" | "destructive" | "outline" | "secondary";
+	variant?: 'default' | 'destructive' | 'outline' | 'secondary';
 	requireSelection?: boolean;
 };
 
@@ -210,7 +210,7 @@ export type TableConfig<T> = {
 	// Table configuration
 	columns: ColumnConfig<T>[];
 	header?: HeaderTableConfig<T>;
-	pagination?: Omit<DataTablePaginationProps<T>, "table">;
+	pagination?: Omit<DataTablePaginationProps<T>, 'table'>;
 
 	// Form configuration
 	form?: {
@@ -225,10 +225,10 @@ export type TableConfig<T> = {
 	customActions?: CustomAction<T>[];
 	bulkActions?: BulkAction<T>[];
 
-	headerProps?: Omit<DataTableHeaderProps, "table">;
+	headerProps?: Omit<DataTableHeaderProps, 'table'>;
 
 	// Enhanced API configuration
-	api: Omit<UseDynamicDataOptions<T>, "endpoint" | "model"> & ApiConfig;
+	api: Omit<UseDynamicDataOptions<T>, 'endpoint' | 'model'> & ApiConfig;
 
 	// Enhanced schema configuration (deprecated - use form.schema instead)
 	schema?: SchemaConfig;
@@ -260,7 +260,12 @@ export function DynamicDataTable<T>(tableConfig: TableConfig<T>) {
 
 				// Create clean column config (remove form-related properties)
 				if (!col.formOnly) {
-					const { form, formOnly: _formOnly, validation, ...cleanCol } = col;
+					const {
+						form,
+						formOnly: _formOnly,
+						validation,
+						...cleanCol
+					} = col;
 					normalizedColumns.push(cleanCol);
 				}
 			});
@@ -325,7 +330,7 @@ function DataTableContent<T>() {
 		// Add sorting
 		if (sorting.length > 0) {
 			params.sortBy = sorting[0].id;
-			params.sortOrder = sorting[0].desc ? "desc" : "asc";
+			params.sortOrder = sorting[0].desc ? 'desc' : 'asc';
 		}
 
 		// Add global search
@@ -336,11 +341,11 @@ function DataTableContent<T>() {
 		// Add column filters
 		columnFilters.forEach((filter) => {
 			const column = tableConfig.columns.find(
-				(col: any) => col.accessorKey === filter.id,
+				(col: any) => col.accessorKey === filter.id
 			);
 			const filterType = column?.headerFilterType;
 
-			if (filterType === "date") {
+			if (filterType === 'date') {
 				// Single date filter - use date range to cover entire day
 				if (filter.value) {
 					const date = new Date(filter.value as string);
@@ -350,7 +355,7 @@ function DataTableContent<T>() {
 						const startOfDay = new Date(
 							date.getFullYear(),
 							date.getMonth(),
-							date.getDate(),
+							date.getDate()
 						);
 						// End of day
 						const endOfDay = new Date(
@@ -360,16 +365,20 @@ function DataTableContent<T>() {
 							23,
 							59,
 							59,
-							999,
+							999
 						);
 
-						params[`filter_${filter.id}`] = startOfDay.toISOString();
-						params[`filter_${filter.id}_op`] = "greater_than_or_equal";
-						params[`filter_${filter.id}_to`] = endOfDay.toISOString();
-						params[`filter_${filter.id}_to_op`] = "less_than_or_equal";
+						params[`filter_${filter.id}`] =
+							startOfDay.toISOString();
+						params[`filter_${filter.id}_op`] =
+							'greater_than_or_equal';
+						params[`filter_${filter.id}_to`] =
+							endOfDay.toISOString();
+						params[`filter_${filter.id}_to_op`] =
+							'less_than_or_equal';
 					}
 				}
-			} else if (filterType === "dateRange") {
+			} else if (filterType === 'dateRange') {
 				// Date range filter
 				const dateRange = filter.value as { from?: Date; to?: Date };
 				if (
@@ -382,7 +391,7 @@ function DataTableContent<T>() {
 					const startOfDay = new Date(
 						dateRange.from.getFullYear(),
 						dateRange.from.getMonth(),
-						dateRange.from.getDate(),
+						dateRange.from.getDate()
 					);
 					const endOfDay = new Date(
 						dateRange.to.getFullYear(),
@@ -391,22 +400,25 @@ function DataTableContent<T>() {
 						23,
 						59,
 						59,
-						999,
+						999
 					);
 
 					params[`filter_${filter.id}`] = startOfDay.toISOString();
-					params[`filter_${filter.id}_op`] = "greater_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'greater_than_or_equal';
 					params[`filter_${filter.id}_to`] = endOfDay.toISOString();
-					params[`filter_${filter.id}_to_op`] = "less_than_or_equal";
-				} else if (dateRange?.from && !isNaN(dateRange.from.getTime())) {
+					params[`filter_${filter.id}_to_op`] = 'less_than_or_equal';
+				} else if (
+					dateRange?.from &&
+					!isNaN(dateRange.from.getTime())
+				) {
 					// Only from date - start of day
 					const startOfDay = new Date(
 						dateRange.from.getFullYear(),
 						dateRange.from.getMonth(),
-						dateRange.from.getDate(),
+						dateRange.from.getDate()
 					);
 					params[`filter_${filter.id}`] = startOfDay.toISOString();
-					params[`filter_${filter.id}_op`] = "greater_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'greater_than_or_equal';
 				} else if (dateRange?.to && !isNaN(dateRange.to.getTime())) {
 					// Only to date - end of day
 					const endOfDay = new Date(
@@ -416,48 +428,48 @@ function DataTableContent<T>() {
 						23,
 						59,
 						59,
-						999,
+						999
 					);
 					params[`filter_${filter.id}`] = endOfDay.toISOString();
-					params[`filter_${filter.id}_op`] = "less_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'less_than_or_equal';
 				}
-			} else if (filterType === "range") {
+			} else if (filterType === 'range') {
 				// Number range filter
 				const range = filter.value as { min?: number; max?: number };
 				if (range?.min !== undefined && range?.max !== undefined) {
 					// Both values provided
 					params[`filter_${filter.id}`] = range.min.toString();
-					params[`filter_${filter.id}_op`] = "greater_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'greater_than_or_equal';
 					params[`filter_${filter.id}_to`] = range.max.toString();
-					params[`filter_${filter.id}_to_op`] = "less_than_or_equal";
+					params[`filter_${filter.id}_to_op`] = 'less_than_or_equal';
 				} else if (range?.min !== undefined) {
 					// Only min value
 					params[`filter_${filter.id}`] = range.min.toString();
-					params[`filter_${filter.id}_op`] = "greater_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'greater_than_or_equal';
 				} else if (range?.max !== undefined) {
 					// Only max value
 					params[`filter_${filter.id}`] = range.max.toString();
-					params[`filter_${filter.id}_op`] = "less_than_or_equal";
+					params[`filter_${filter.id}_op`] = 'less_than_or_equal';
 				}
-			} else if (filterType === "select" || filterType === "enum") {
+			} else if (filterType === 'select' || filterType === 'enum') {
 				// Select/enum filter
 				params[`filter_${filter.id}`] = filter.value as string;
-				params[`filter_${filter.id}_op`] = "equals";
-			} else if (filterType === "multiSelect") {
+				params[`filter_${filter.id}_op`] = 'equals';
+			} else if (filterType === 'multiSelect') {
 				// Multi-select filter
 				const values = filter.value as string[];
 				if (values && values.length > 0) {
-					params[`filter_${filter.id}`] = values.join(",");
-					params[`filter_${filter.id}_op`] = "in";
+					params[`filter_${filter.id}`] = values.join(',');
+					params[`filter_${filter.id}_op`] = 'in';
 				}
-			} else if (filterType === "boolean") {
+			} else if (filterType === 'boolean') {
 				// Boolean filter
 				params[`filter_${filter.id}`] = filter.value as string;
-				params[`filter_${filter.id}_op`] = "equals";
+				params[`filter_${filter.id}_op`] = 'equals';
 			} else {
 				// Default text/number filter
 				params[`filter_${filter.id}`] = filter.value as string;
-				params[`filter_${filter.id}_op`] = "contains";
+				params[`filter_${filter.id}_op`] = 'contains';
 			}
 		});
 
@@ -474,7 +486,7 @@ function DataTableContent<T>() {
 		...tableConfig.api,
 		params: queryParams,
 		queryKey: [
-			"dynamic-data",
+			'dynamic-data',
 			tableConfig.api.model ?? tableConfig.api.endpoint,
 			queryParams,
 		],
@@ -487,7 +499,7 @@ function DataTableContent<T>() {
 
 	const finalColumns = React.useMemo(
 		() => createColumns(tableConfig),
-		[tableConfig],
+		[tableConfig]
 	);
 
 	const table = useReactTable<T>({
@@ -522,11 +534,12 @@ function DataTableContent<T>() {
 	// CRUD operation handlers
 	const handleCreate = async (data: Partial<T>) => {
 		try {
-			const endpoint = tableConfig.api.endpoint || `/${tableConfig.api.model}`;
+			const endpoint =
+				tableConfig.api.endpoint || `/${tableConfig.api.model}`;
 			await axios.post(endpoint, data);
 			refreshData();
 		} catch (error) {
-			console.error("Create error:", error);
+			console.error('Create error:', error);
 			throw error;
 		}
 	};
@@ -534,11 +547,12 @@ function DataTableContent<T>() {
 	const handleUpdate = async (data: Partial<T>) => {
 		try {
 			if (!editingRow || !(editingRow as any).id) return;
-			const endpoint = tableConfig.api.endpoint || `/${tableConfig.api.model}`;
+			const endpoint =
+				tableConfig.api.endpoint || `/${tableConfig.api.model}`;
 			await axios.patch(`${endpoint}/${(editingRow as any).id}`, data);
 			refreshData();
 		} catch (error) {
-			console.error("Update error:", error);
+			console.error('Update error:', error);
 			throw error;
 		}
 	};
@@ -546,100 +560,113 @@ function DataTableContent<T>() {
 	const handleDelete = async () => {
 		try {
 			if (!deletingRow || !(deletingRow as any).id) return;
-			const endpoint = tableConfig.api.endpoint || `/${tableConfig.api.model}`;
+			const endpoint =
+				tableConfig.api.endpoint || `/${tableConfig.api.model}`;
 			await axios.delete(`${endpoint}/${(deletingRow as any).id}`);
 			refreshData();
 		} catch (error) {
-			console.error("Delete error:", error);
+			console.error('Delete error:', error);
 			throw error;
 		}
 	};
 
 	return (
-		<div className="w-full">
+		<div className='w-full'>
 			<DataTableHeader
 				table={table}
-				dateColumnId={tableConfig?.headerProps?.dateColumnId || "updatedAt"}
-				filterOptions={
-					tableConfig?.headerProps?.filterOptions || [
-						
-					]
+				dateColumnId={
+					tableConfig?.headerProps?.dateColumnId || 'updatedAt'
 				}
+				filterOptions={tableConfig?.headerProps?.filterOptions || []}
 				{...tableConfig.headerProps}
 			/>
-			
-			<div className="rounded-md border">
-					<Table containerClassName="h-fit max-h-[calc(100vh-18.5rem)] overflow-y-auto relative">
-						<TableHeader className="sticky top-0">
-							{table.getHeaderGroups().map((headerGroup) => (
-								<TableRow key={headerGroup.id} className="bg-accent">
-									{headerGroup.headers.map((header) => {
-										return (
-											<TableHead key={header.id} className="bg-accent">
-												{header.isPlaceholder
-													? null
-													: flexRender(
-															header.column.columnDef.header,
-															header.getContext(),
-														)}
-											</TableHead>
-										);
-									})}
-								</TableRow>
-							))}
-						</TableHeader>
-						<TableBody>
-							{query.isLoading ? (
-								Array.from({ length: pagination.pageSize }).map((_, index) => (
+
+			<div className='rounded-md border'>
+				<Table containerClassName='h-fit max-h-[calc(100vh-18.5rem)] overflow-y-auto relative'>
+					<TableHeader className='sticky top-0'>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow
+								key={headerGroup.id}
+								className='bg-accent'
+							>
+								{headerGroup.headers.map((header) => {
+									return (
+										<TableHead
+											key={header.id}
+											className='bg-accent'
+										>
+											{header.isPlaceholder
+												? null
+												: flexRender(
+														header.column.columnDef
+															.header,
+														header.getContext()
+													)}
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody>
+						{query.isLoading ? (
+							Array.from({ length: pagination.pageSize }).map(
+								(_, index) => (
 									<TableRow key={index}>
-										{Array.from({ length: finalColumns.length }).map(
-											(_, cellIndex) => (
-												<TableCell key={cellIndex} className="h-12">
-													<div className="flex items-center space-x-2">
-														<div className="h-4 w-full animate-pulse rounded bg-muted" />
-													</div>
-												</TableCell>
-											),
-										)}
-									</TableRow>
-								))
-							) : query.isError ? (
-								<TableRow>
-									<TableCell
-										colSpan={finalColumns.length}
-										className="h-24 text-center text-red-500"
-									>
-										Error loading data. Please try again.
-									</TableCell>
-								</TableRow>
-							) : table.getRowModel().rows?.length ? (
-								table.getRowModel().rows.map((row) => (
-									<TableRow
-										key={row.id}
-										data-state={row.getIsSelected() && "selected"}
-									>
-										{row.getVisibleCells().map((cell) => (
-											<TableCell key={cell.id}>
-												{flexRender(
-													cell.column.columnDef.cell,
-													cell.getContext(),
-												)}
+										{Array.from({
+											length: finalColumns.length,
+										}).map((_, cellIndex) => (
+											<TableCell
+												key={cellIndex}
+												className='h-12'
+											>
+												<div className='flex items-center space-x-2'>
+													<div className='h-4 w-full animate-pulse rounded bg-muted' />
+												</div>
 											</TableCell>
 										))}
 									</TableRow>
-								))
-							) : (
-								<TableRow>
-									<TableCell
-										colSpan={finalColumns.length}
-										className="h-24 text-center"
-									>
-										No results.
-									</TableCell>
+								)
+							)
+						) : query.isError ? (
+							<TableRow>
+								<TableCell
+									colSpan={finalColumns.length}
+									className='h-24 text-center text-red-500'
+								>
+									Error loading data. Please try again.
+								</TableCell>
+							</TableRow>
+						) : table.getRowModel().rows?.length ? (
+							table.getRowModel().rows.map((row) => (
+								<TableRow
+									key={row.id}
+									data-state={
+										row.getIsSelected() && 'selected'
+									}
+								>
+									{row.getVisibleCells().map((cell) => (
+										<TableCell key={cell.id}>
+											{flexRender(
+												cell.column.columnDef.cell,
+												cell.getContext()
+											)}
+										</TableCell>
+									))}
 								</TableRow>
-							)}	
-						</TableBody>
-					</Table>
+							))
+						) : (
+							<TableRow>
+								<TableCell
+									colSpan={finalColumns.length}
+									className='h-24 text-center'
+								>
+									No results.
+								</TableCell>
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
 			</div>
 			<DataTablePagination
 				table={table}
@@ -649,7 +676,7 @@ function DataTableContent<T>() {
 			{/* CRUD Forms and Dialogs */}
 
 			<DataTableForm
-				mode={isCreating ? "create" : "edit"}
+				mode={isCreating ? 'create' : 'edit'}
 				open={isCreating || isEditing}
 				onClose={closeAllModals}
 				onSubmit={isCreating ? handleCreate : handleUpdate}

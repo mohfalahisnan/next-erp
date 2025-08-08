@@ -14,9 +14,9 @@ The system uses a Node.js script (`scripts/generate-model-relations.js`) that:
 
 - **Parses the Prisma schema** (`prisma/schema.prisma`)
 - **Extracts model relationships** by analyzing:
-  - `@relation` annotations
-  - Array field types (one-to-many relationships)
-  - Referenced model types (foreign key relationships)
+    - `@relation` annotations
+    - Array field types (one-to-many relationships)
+    - Referenced model types (foreign key relationships)
 - **Generates the `modelRelations` object** with proper TypeScript typing
 - **Updates `populate-utils.ts`** automatically
 
@@ -41,27 +41,47 @@ The script generates a complete `modelRelations` mapping:
 
 ```typescript
 export const modelRelations: Record<string, string[]> = {
-  user: ['role', 'department', 'managedDepartments', 'managedProjects', 'Warehouse', 'sessions', 'accounts'],
-  session: ['user'],
-  account: ['user'],
-  department: ['manager', 'users', 'projects', 'roles'],
-  role: ['department', 'users'],
-  project: ['department', 'manager'],
-  warehouse: ['manager', 'inventory', 'inventoryMovements', 'transfersFrom', 'transfersTo'],
-  productcategory: ['parent', 'children', 'products'],
-  supplier: ['products'],
-  product: ['category', 'supplier', 'productVariants'],
-  productvariant: ['product', 'inventory', 'inventoryMovements', 'transferItems', 'orderItems'],
-  inventory: ['warehouse', 'productVariant'],
-  inventorymovement: ['warehouse', 'productVariant'],
-  transfer: ['fromWarehouse', 'toWarehouse', 'transferItems'],
-  transferitem: ['transfer', 'productVariant'],
-  customer: ['addresses', 'orders'],
-  customeraddress: ['customer'],
-  carrier: ['shipments'],
-  order: ['customer', 'orderItems', 'shipments'],
-  orderitem: ['order', 'productVariant'],
-  shipment: ['order', 'carrier']
+	user: [
+		'role',
+		'department',
+		'managedDepartments',
+		'managedProjects',
+		'Warehouse',
+		'sessions',
+		'accounts',
+	],
+	session: ['user'],
+	account: ['user'],
+	department: ['manager', 'users', 'projects', 'roles'],
+	role: ['department', 'users'],
+	project: ['department', 'manager'],
+	warehouse: [
+		'manager',
+		'inventory',
+		'inventoryMovements',
+		'transfersFrom',
+		'transfersTo',
+	],
+	productcategory: ['parent', 'children', 'products'],
+	supplier: ['products'],
+	product: ['category', 'supplier', 'productVariants'],
+	productvariant: [
+		'product',
+		'inventory',
+		'inventoryMovements',
+		'transferItems',
+		'orderItems',
+	],
+	inventory: ['warehouse', 'productVariant'],
+	inventorymovement: ['warehouse', 'productVariant'],
+	transfer: ['fromWarehouse', 'toWarehouse', 'transferItems'],
+	transferitem: ['transfer', 'productVariant'],
+	customer: ['addresses', 'orders'],
+	customeraddress: ['customer'],
+	carrier: ['shipments'],
+	order: ['customer', 'orderItems', 'shipments'],
+	orderitem: ['order', 'productVariant'],
+	shipment: ['order', 'carrier'],
 };
 ```
 
@@ -92,21 +112,25 @@ The relations are automatically regenerated:
 ## Benefits
 
 ### 1. **Consistency**
+
 - Relations always match the actual database schema
 - No risk of outdated or incorrect relation mappings
 - Automatic synchronization with schema changes
 
 ### 2. **Maintainability**
+
 - No manual updates required when adding/removing relations
 - Reduces human error in relation definitions
 - Single source of truth (Prisma schema)
 
 ### 3. **Developer Experience**
+
 - Automatic discovery of new relations
 - Immediate availability of new populate options
 - Clear audit trail of relation changes
 
 ### 4. **Type Safety**
+
 - Generated relations are properly typed
 - Compile-time validation of relation usage
 - IntelliSense support for relation names
@@ -125,9 +149,9 @@ The relations are automatically regenerated:
 
 1. **Model Detection**: Identifies `model ModelName {` blocks
 2. **Relation Extraction**: Finds relation fields using multiple patterns:
-   - Lines with `@relation` annotations
-   - Array fields (`FieldName[]`)
-   - Model type references
+    - Lines with `@relation` annotations
+    - Array fields (`FieldName[]`)
+    - Model type references
 3. **Filtering**: Excludes primitive types and enums
 4. **Normalization**: Converts model names to lowercase for consistency
 
@@ -138,8 +162,8 @@ The relations are automatically regenerated:
 ```typescript
 // Manual maintenance required
 export const modelRelations: Record<string, string[]> = {
-  user: ['role', 'department'], // Missing: managedDepartments, managedProjects, etc.
-  // ... other models (potentially outdated)
+	user: ['role', 'department'], // Missing: managedDepartments, managedProjects, etc.
+	// ... other models (potentially outdated)
 };
 ```
 
@@ -148,8 +172,16 @@ export const modelRelations: Record<string, string[]> = {
 ```typescript
 // Automatically generated and always up-to-date
 export const modelRelations: Record<string, string[]> = {
-  user: ['role', 'department', 'managedDepartments', 'managedProjects', 'Warehouse', 'sessions', 'accounts'],
-  // ... all models with complete relations
+	user: [
+		'role',
+		'department',
+		'managedDepartments',
+		'managedProjects',
+		'Warehouse',
+		'sessions',
+		'accounts',
+	],
+	// ... all models with complete relations
 };
 ```
 
@@ -178,17 +210,17 @@ The generation script includes robust error handling:
 ```yaml
 # .github/workflows/ci.yml
 steps:
-  - name: Install dependencies
-    run: npm install
-  
-  - name: Generate Prisma client
-    run: npm run db:generate
-  
-  - name: Generate model relations
-    run: npm run generate:relations
-  
-  - name: Run tests
-    run: npm test
+    - name: Install dependencies
+      run: npm install
+
+    - name: Generate Prisma client
+      run: npm run db:generate
+
+    - name: Generate model relations
+      run: npm run generate:relations
+
+    - name: Run tests
+      run: npm test
 ```
 
 ### Pre-commit Hook
@@ -204,19 +236,19 @@ git add src/lib/populate-utils.ts
 ### Common Issues
 
 1. **Missing Relations**
-   - Ensure Prisma schema has proper `@relation` annotations
-   - Check that field names match model names
-   - Verify model names are properly capitalized
+    - Ensure Prisma schema has proper `@relation` annotations
+    - Check that field names match model names
+    - Verify model names are properly capitalized
 
 2. **Generation Fails**
-   - Check Prisma schema syntax
-   - Ensure file permissions allow writing to `populate-utils.ts`
-   - Verify Node.js can read the schema file
+    - Check Prisma schema syntax
+    - Ensure file permissions allow writing to `populate-utils.ts`
+    - Verify Node.js can read the schema file
 
 3. **Outdated Relations**
-   - Run `npm run generate:relations` after schema changes
-   - Check that the script completed successfully
-   - Verify the updated file was saved
+    - Run `npm run generate:relations` after schema changes
+    - Check that the script completed successfully
+    - Verify the updated file was saved
 
 ### Debug Mode
 

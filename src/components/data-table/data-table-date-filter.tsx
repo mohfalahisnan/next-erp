@@ -1,14 +1,14 @@
-import type { Table } from "@tanstack/react-table";
-import { Calendar1Icon, ChevronDownIcon } from "lucide-react";
-import React from "react";
-import type { DateRange } from "react-day-picker";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import type { Table } from '@tanstack/react-table';
+import { Calendar1Icon, ChevronDownIcon } from 'lucide-react';
+import React from 'react';
+import type { DateRange } from 'react-day-picker';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 
 interface DataTableDateFilterProps {
 	table: Table<any>;
@@ -18,7 +18,7 @@ interface DataTableDateFilterProps {
 
 function DataTableDateFilter({
 	table,
-	columnId = "createdAt",
+	columnId = 'createdAt',
 }: DataTableDateFilterProps) {
 	const [open, setOpen] = React.useState(false);
 
@@ -44,43 +44,46 @@ function DataTableDateFilter({
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<Button
-					variant="dashed"
-					id="dateRange"
-					className="justify-between font-normal"
+					variant='dashed'
+					id='dateRange'
+					className='justify-between font-normal'
 				>
-					<Calendar1Icon className="h-4 w-4" />
+					<Calendar1Icon className='h-4 w-4' />
 					{columnId}
 					{dateRangeFilter?.from && (
-						<span className="ml-2">
+						<span className='ml-2'>
 							{dateRangeFilter.from.toLocaleDateString()}
 							{dateRangeFilter.to && (
 								<>
-									{" - "}
+									{' - '}
 									{dateRangeFilter.to.toLocaleDateString()}
 								</>
 							)}
 						</span>
 					)}
-					<ChevronDownIcon className="h-4 w-4" />
+					<ChevronDownIcon className='h-4 w-4' />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto overflow-hidden p-0" align="start">
+			<PopoverContent
+				className='w-auto overflow-hidden p-0'
+				align='start'
+			>
 				<Calendar
-					mode="range"
+					mode='range'
 					selected={dateRangeFilter}
-					captionLayout="dropdown"
+					captionLayout='dropdown'
 					onSelect={handleDateRangeSelect}
 					numberOfMonths={2}
 				/>
 				{dateRangeFilter && (
-					<div className="p-2">
+					<div className='p-2'>
 						<Button
 							onClick={() => {
 								handleDateRangeSelect(undefined);
 								setOpen(false);
 							}}
-							variant="secondary"
-							className="w-full"
+							variant='secondary'
+							className='w-full'
 						>
 							Clear
 						</Button>

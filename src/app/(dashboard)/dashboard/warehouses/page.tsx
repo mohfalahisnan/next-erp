@@ -1,11 +1,8 @@
-import React from 'react'
-import TableDemo from './table'
-
+import React from 'react';
+import TableDemo from './table';
 
 function Page() {
-  return (
-   <TableDemo />
-  )
+	return <TableDemo />;
 }
 
-export default Page
+export default Page;

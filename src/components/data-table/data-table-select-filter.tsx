@@ -1,7 +1,7 @@
-import { PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { PlusCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -9,8 +9,8 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import type { FilterOptions } from "./data-table-filters";
+} from '@/components/ui/dropdown-menu';
+import type { FilterOptions } from './data-table-filters';
 
 // TODO: add multiple select
 function SelectFilter({
@@ -29,17 +29,17 @@ function SelectFilter({
 	return (
 		<DropdownMenu open={open} onOpenChange={setOpen}>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline" className="border-dashed">
+				<Button variant='outline' className='border-dashed'>
 					<PlusCircle />
-					{filter.label} {value && ":"}
+					{filter.label} {value && ':'}
 					{value && (
-						<Badge className="capitalize" variant="secondary">
+						<Badge className='capitalize' variant='secondary'>
 							{value}
 						</Badge>
 					)}
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="start">
+			<DropdownMenuContent align='start'>
 				{filter.values.map((item) => (
 					<DropdownMenuCheckboxItem
 						key={item.value}
@@ -54,8 +54,8 @@ function SelectFilter({
 					<>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
-							onClick={() => onChange("")}
-							className="items-center justify-center bg-accent cursor-pointer"
+							onClick={() => onChange('')}
+							className='items-center justify-center bg-accent cursor-pointer'
 						>
 							Clear
 						</DropdownMenuItem>

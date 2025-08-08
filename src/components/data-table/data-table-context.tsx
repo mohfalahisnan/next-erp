@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 import type {
 	ColumnFiltersState,
 	SortingState,
 	VisibilityState,
-} from "@tanstack/react-table";
-import { parseAsJson, parseAsString, useQueryState } from "nuqs";
-import { createContext, type ReactNode, useContext, useState } from "react";
-import type { TableConfig } from "./data-table";
+} from '@tanstack/react-table';
+import { parseAsJson, parseAsString, useQueryState } from 'nuqs';
+import { createContext, type ReactNode, useContext, useState } from 'react';
+import type { TableConfig } from './data-table';
 
 interface DataTableContextValue<T = any> {
 	// Table configuration
@@ -17,23 +17,25 @@ interface DataTableContextValue<T = any> {
 	// Table state
 	sorting: SortingState;
 	setSorting: (
-		sorting: SortingState | ((prev: SortingState) => SortingState),
+		sorting: SortingState | ((prev: SortingState) => SortingState)
 	) => void;
 	columnFilters: ColumnFiltersState;
 	setColumnFilters: (
 		filters:
 			| ColumnFiltersState
-			| ((prev: ColumnFiltersState) => ColumnFiltersState),
+			| ((prev: ColumnFiltersState) => ColumnFiltersState)
 	) => void;
 	columnVisibility: VisibilityState;
 	setColumnVisibility: (
-		visibility: VisibilityState | ((prev: VisibilityState) => VisibilityState),
+		visibility:
+			| VisibilityState
+			| ((prev: VisibilityState) => VisibilityState)
 	) => void;
 	rowSelection: Record<string, boolean>;
 	setRowSelection: (
 		selection:
 			| Record<string, boolean>
-			| ((prev: Record<string, boolean>) => Record<string, boolean>),
+			| ((prev: Record<string, boolean>) => Record<string, boolean>)
 	) => void;
 	globalFilter: string;
 	setGlobalFilter: (filter: string) => void;
@@ -71,7 +73,7 @@ const DataTableContext = createContext<DataTableContextValue | null>(null);
 export function useDataTable<T = any>(): DataTableContextValue<T> {
 	const context = useContext(DataTableContext);
 	if (!context) {
-		throw new Error("useDataTable must be used within a DataTableProvider");
+		throw new Error('useDataTable must be used within a DataTableProvider');
 	}
 	return context as DataTableContextValue<T>;
 }
@@ -86,28 +88,29 @@ export function DataTableProvider<T>({
 	initialConfig,
 }: DataTableProviderProps<T>) {
 	// Table configuration
-	const [tableConfig, setTableConfig] = useState<TableConfig<T>>(initialConfig);
+	const [tableConfig, setTableConfig] =
+		useState<TableConfig<T>>(initialConfig);
 
 	// Table state with URL synchronization
 	const [sorting, setSorting] = useQueryState(
-		"sort",
-		parseAsJson((value) => value as SortingState).withDefault([]),
+		'sort',
+		parseAsJson((value) => value as SortingState).withDefault([])
 	);
 	const [columnFilters, setColumnFilters] = useQueryState(
-		"filters",
-		parseAsJson((value) => value as ColumnFiltersState).withDefault([]),
+		'filters',
+		parseAsJson((value) => value as ColumnFiltersState).withDefault([])
 	);
 	const [columnVisibility, setColumnVisibility] = useQueryState(
-		"visibility",
-		parseAsJson((value) => value as VisibilityState).withDefault({}),
+		'visibility',
+		parseAsJson((value) => value as VisibilityState).withDefault({})
 	);
 	const [rowSelection, setRowSelection] = useQueryState(
-		"selection",
-		parseAsJson((value) => value as Record<string, boolean>).withDefault({}),
+		'selection',
+		parseAsJson((value) => value as Record<string, boolean>).withDefault({})
 	);
 	const [globalFilter, setGlobalFilter] = useQueryState(
-		"search",
-		parseAsString.withDefault(""),
+		'search',
+		parseAsString.withDefault('')
 	);
 
 	// CRUD operations state

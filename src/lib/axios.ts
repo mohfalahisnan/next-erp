@@ -1,9 +1,9 @@
-import axios from "axios";
+import axios from 'axios';
 
 const api = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API_URL,
 	headers: {
-		"Content-Type": "application/json",
+		'Content-Type': 'application/json',
 	},
 	timeout: 10000, // 10 seconds
 });
@@ -16,7 +16,7 @@ api.interceptors.request.use(
 	},
 	(error) => {
 		return Promise.reject(error);
-	},
+	}
 );
 
 // Add response interceptor
@@ -26,7 +26,7 @@ api.interceptors.response.use(
 	},
 	(error) => {
 		return Promise.reject(error);
-	},
+	}
 );
 
 export default api;

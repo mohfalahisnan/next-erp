@@ -1,10 +1,10 @@
-import type { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
-import React from "react";
+import type { Table } from '@tanstack/react-table';
+import { X } from 'lucide-react';
+import React from 'react';
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { BulkAction } from "./data-table";
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import type { BulkAction } from './data-table';
 
 interface DataTableBulkActionsProps<T> {
 	table: Table<T>;
@@ -32,28 +32,29 @@ export function DataTableBulkActions<T>({
 	return (
 		<div
 			className={cn(
-				"flex items-center justify-between p-4 bg-muted/50 border rounded-lg mb-4",
-				className,
+				'flex items-center justify-between p-4 bg-muted/50 border rounded-lg mb-4',
+				className
 			)}
 		>
-			<div className="flex items-center gap-2">
-				<span className="text-sm font-medium">
-					{selectedCount} item{selectedCount !== 1 ? "s" : ""} selected
+			<div className='flex items-center gap-2'>
+				<span className='text-sm font-medium'>
+					{selectedCount} item{selectedCount !== 1 ? 's' : ''}{' '}
+					selected
 				</span>
 				{selectedCount > 0 && (
 					<Button
-						variant="ghost"
-						size="sm"
+						variant='ghost'
+						size='sm'
 						onClick={clearSelection}
-						className="h-6 px-2"
+						className='h-6 px-2'
 					>
-						<X className="h-3 w-3" />
+						<X className='h-3 w-3' />
 						Clear
 					</Button>
 				)}
 			</div>
 
-			<div className="flex items-center gap-2">
+			<div className='flex items-center gap-2'>
 				{bulkActions.map((action, index) => {
 					const isVisible = action.visible
 						? action.visible(selectedData)
@@ -70,11 +71,14 @@ export function DataTableBulkActions<T>({
 					return (
 						<Button
 							key={index}
-							variant={action.variant || "default"}
-							size="sm"
-							disabled={isDisabled || (requiresSelection && selectedCount === 0)}
+							variant={action.variant || 'default'}
+							size='sm'
+							disabled={
+								isDisabled ||
+								(requiresSelection && selectedCount === 0)
+							}
 							onClick={() => action.action(selectedData)}
-							className="flex items-center gap-2"
+							className='flex items-center gap-2'
 						>
 							{action.icon}
 							{action.label}

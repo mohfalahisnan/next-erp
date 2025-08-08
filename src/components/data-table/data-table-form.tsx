@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { DynamicSelect } from "@/components/select/dynamic-select";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { DynamicSelect } from '@/components/select/dynamic-select';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Form,
 	FormControl,
@@ -17,25 +17,25 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from "@/components/ui/popover";
+} from '@/components/ui/popover';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { ScrollArea } from "../ui/scroll-area";
-import type { FormConfig, FormFieldConfig } from "./data-table";
-import { useDataTable } from "./data-table-context";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '../ui/scroll-area';
+import type { FormConfig, FormFieldConfig } from './data-table';
+import { useDataTable } from './data-table-context';
 import {
 	Sheet,
 	SheetContent,
@@ -43,10 +43,10 @@ import {
 	SheetFooter,
 	SheetHeader,
 	SheetTitle,
-} from "./data-table-sheet";
+} from './data-table-sheet';
 
 interface DataTableFormProps<T> {
-	mode: "create" | "edit";
+	mode: 'create' | 'edit';
 	open: boolean;
 	onClose: () => void;
 	onSubmit: (data: Partial<T>) => Promise<void>;
@@ -73,31 +73,35 @@ export function DataTableForm<T>({
 				let fieldSchema: z.ZodTypeAny;
 
 				switch (field.config.type) {
-					case "email":
-						fieldSchema = z.string().email("Invalid email address");
+					case 'email':
+						fieldSchema = z.string().email('Invalid email address');
 						break;
-					case "number":
+					case 'number':
 						fieldSchema = z.number();
 						break;
-					case "checkbox":
+					case 'checkbox':
 						fieldSchema = z.boolean();
 						break;
-					case "date":
+					case 'date':
 						fieldSchema = z.string().refine((val) => {
 							if (!val) return true; // Allow empty dates if not required
 							const date = new Date(val);
 							return !isNaN(date.getTime());
-						}, "Invalid date format");
+						}, 'Invalid date format');
 						break;
-					case "select":
+					case 'select':
 						if (field.config.options) {
-							const values = field.config.options.map((opt: any) => opt.value);
-							fieldSchema = z.enum(values as [string, ...string[]]);
+							const values = field.config.options.map(
+								(opt: any) => opt.value
+							);
+							fieldSchema = z.enum(
+								values as [string, ...string[]]
+							);
 						} else {
 							fieldSchema = z.string();
 						}
 						break;
-					case "dynamic-select":
+					case 'dynamic-select':
 						fieldSchema = z.string();
 						break;
 					default:
@@ -109,27 +113,36 @@ export function DataTableForm<T>({
 				if (validation) {
 					if (validation.required) {
 						if (fieldSchema instanceof z.ZodString) {
-							fieldSchema = fieldSchema.min(1, "This field is required");
+							fieldSchema = fieldSchema.min(
+								1,
+								'This field is required'
+							);
 						} else if (fieldSchema instanceof z.ZodNumber) {
-							fieldSchema = fieldSchema.min(0, "This field is required");
+							fieldSchema = fieldSchema.min(
+								0,
+								'This field is required'
+							);
 						}
 					}
 					if (validation.min && fieldSchema instanceof z.ZodString) {
 						fieldSchema = fieldSchema.min(
 							validation.min,
-							`Minimum length is ${validation.min}`,
+							`Minimum length is ${validation.min}`
 						);
 					}
 					if (validation.max && fieldSchema instanceof z.ZodString) {
 						fieldSchema = fieldSchema.max(
 							validation.max,
-							`Maximum length is ${validation.max}`,
+							`Maximum length is ${validation.max}`
 						);
 					}
-					if (validation.pattern && fieldSchema instanceof z.ZodString) {
+					if (
+						validation.pattern &&
+						fieldSchema instanceof z.ZodString
+					) {
 						fieldSchema = fieldSchema.regex(
 							validation.pattern,
-							"Invalid format",
+							'Invalid format'
 						);
 					}
 				}
@@ -155,9 +168,9 @@ export function DataTableForm<T>({
 
 	// Reset form when editingRow changes, mode changes, or dialog opens
 	React.useEffect(() => {
-		if (mode === "edit" && editingRow) {
+		if (mode === 'edit' && editingRow) {
 			form.reset(editingRow as FormData);
-		} else if (mode === "create") {
+		} else if (mode === 'create') {
 			// Always reset to empty object in create mode to clear any previous data
 			form.reset({});
 		}
@@ -171,9 +184,9 @@ export function DataTableForm<T>({
 		} catch (error) {
 			if (error instanceof z.ZodError) {
 				error.issues.forEach((err) => {
-					const field = err.path.join(".");
+					const field = err.path.join('.');
 					form.setError(field as any, {
-						type: "validation",
+						type: 'validation',
 						message: err.message,
 					});
 				});
@@ -191,7 +204,7 @@ export function DataTableForm<T>({
 			onClose();
 			form.reset();
 		} catch (error) {
-			console.error("Form submission error:", error);
+			console.error('Form submission error:', error);
 		}
 	};
 
@@ -208,14 +221,16 @@ export function DataTableForm<T>({
 				name={key as keyof FormData}
 				render={({ field: formField }) => (
 					<FormItem>
-						<FormLabel className="capitalize">
+						<FormLabel className='capitalize'>
 							{formConfig.label || key}
 						</FormLabel>
 						<FormControl>
 							{renderInputByType(formConfig, formField)}
 						</FormControl>
 						{formConfig.placeholder && (
-							<FormDescription>{formConfig.placeholder}</FormDescription>
+							<FormDescription>
+								{formConfig.placeholder}
+							</FormDescription>
 						)}
 						<FormMessage />
 					</FormItem>
@@ -226,10 +241,12 @@ export function DataTableForm<T>({
 
 	const renderInputByType = (formConfig: FormConfig, field: any) => {
 		switch (formConfig.type) {
-			case "textarea":
-				return <Textarea placeholder={formConfig.placeholder} {...field} />;
+			case 'textarea':
+				return (
+					<Textarea placeholder={formConfig.placeholder} {...field} />
+				);
 
-			case "select":
+			case 'select':
 				return (
 					<Select onValueChange={field.onChange} value={field.value}>
 						<SelectTrigger>
@@ -248,48 +265,61 @@ export function DataTableForm<T>({
 					</Select>
 				);
 
-			case "checkbox":
+			case 'checkbox':
 				return (
-					<Checkbox checked={field.value} onCheckedChange={field.onChange} />
+					<Checkbox
+						checked={field.value}
+						onCheckedChange={field.onChange}
+					/>
 				);
 
-			case "number":
+			case 'number':
 				return (
 					<Input
-						type="number"
+						type='number'
 						placeholder={formConfig.placeholder}
 						{...field}
 						onChange={(e) => field.onChange(Number(e.target.value))}
 					/>
 				);
 
-			case "date":
+			case 'date':
 				return (
 					<Popover>
 						<PopoverTrigger asChild>
 							<Button
-								variant={"outline"}
+								variant={'outline'}
 								className={cn(
-									"w-full justify-start text-left font-normal",
-									!field.value && "text-muted-foreground",
+									'w-full justify-start text-left font-normal',
+									!field.value && 'text-muted-foreground'
 								)}
 							>
-								<CalendarIcon className="mr-2 h-4 w-4" />
+								<CalendarIcon className='mr-2 h-4 w-4' />
 								{field.value ? (
-									format(new Date(field.value), "PPP")
+									format(new Date(field.value), 'PPP')
 								) : (
-									<span>{formConfig.placeholder || "Pick a date"}</span>
+									<span>
+										{formConfig.placeholder ||
+											'Pick a date'}
+									</span>
 								)}
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0">
+						<PopoverContent className='w-auto p-0'>
 							<Calendar
-								mode="single"
-								captionLayout="dropdown"
-								selected={field.value ? new Date(field.value) : undefined}
-								onSelect={(date) => field.onChange(date?.toISOString())}
+								mode='single'
+								captionLayout='dropdown'
+								selected={
+									field.value
+										? new Date(field.value)
+										: undefined
+								}
+								onSelect={(date) =>
+									field.onChange(date?.toISOString())
+								}
 								disabled={(date) =>
-									date > new Date() || date < new Date("1900-01-01")
+									date > new Date() ||
+									date < new Date('1900-01-01')
 								}
 								initialFocus
 							/>
@@ -297,18 +327,18 @@ export function DataTableForm<T>({
 					</Popover>
 				);
 
-			case "dynamic-select":
+			case 'dynamic-select':
 				// Check if formConfig has the required dynamic select properties
 				if (
-					"model" in formConfig &&
-					"valueKey" in formConfig &&
-					"labelKey" in formConfig
+					'model' in formConfig &&
+					'valueKey' in formConfig &&
+					'labelKey' in formConfig
 				) {
 					return (
 						<DynamicSelect
 							model={formConfig.model}
-							placeholder={"Select an option..."}
-							label={formConfig.label || ""}
+							placeholder={'Select an option...'}
+							label={formConfig.label || ''}
 							indexKey={formConfig.valueKey}
 							indexValue={formConfig.labelKey}
 							value={field.value}
@@ -319,13 +349,17 @@ export function DataTableForm<T>({
 				}
 				// Fallback to text input if configuration is incomplete
 				return (
-					<Input type="text" placeholder={"Select an option..."} {...field} />
+					<Input
+						type='text'
+						placeholder={'Select an option...'}
+						{...field}
+					/>
 				);
 
 			default:
 				return (
 					<Input
-						type={formConfig.type || "text"}
+						type={formConfig.type || 'text'}
 						placeholder={formConfig.placeholder}
 						{...field}
 					/>
@@ -335,40 +369,51 @@ export function DataTableForm<T>({
 
 	return (
 		<Sheet open={open} onOpenChange={onClose}>
-			<SheetContent className="sm:max-w-[540px] overflow-y-auto">
-				<ScrollArea className="h-[calc(100vh-38px)]">
+			<SheetContent className='sm:max-w-[540px] overflow-y-auto'>
+				<ScrollArea className='h-[calc(100vh-38px)]'>
 					<SheetHeader>
 						<SheetTitle>
-							{mode === "create" ? "Create New Record" : "Edit Record"}
+							{mode === 'create'
+								? 'Create New Record'
+								: 'Edit Record'}
 						</SheetTitle>
 						<SheetDescription>
-							{mode === "create"
-								? "Fill in the details to create a new record."
-								: "Update the details for this record."}
+							{mode === 'create'
+								? 'Fill in the details to create a new record.'
+								: 'Update the details for this record.'}
 						</SheetDescription>
 					</SheetHeader>
 
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
-							className="space-y-4"
+							className='space-y-4'
 						>
-							<div className="grid gap-4 p-4">
-								{(tableConfig.form?.fields || []).map((field) => {
-									return renderFormField(field);
-								})}
+							<div className='grid gap-4 p-4'>
+								{(tableConfig.form?.fields || []).map(
+									(field) => {
+										return renderFormField(field);
+									}
+								)}
 							</div>
 
 							<SheetFooter>
-								<Button type="button" variant="outline" onClick={onClose}>
+								<Button
+									type='button'
+									variant='outline'
+									onClick={onClose}
+								>
 									Cancel
 								</Button>
-								<Button type="submit" disabled={form.formState.isSubmitting}>
+								<Button
+									type='submit'
+									disabled={form.formState.isSubmitting}
+								>
 									{form.formState.isSubmitting
-										? "Saving..."
-										: mode === "create"
-											? "Create"
-											: "Update"}
+										? 'Saving...'
+										: mode === 'create'
+											? 'Create'
+											: 'Update'}
 								</Button>
 							</SheetFooter>
 						</form>
@@ -404,20 +449,28 @@ export function DataTableViewDialog<T>({
 				<SheetContent>
 					<SheetHeader>
 						<SheetTitle>View Details</SheetTitle>
-						<SheetDescription>No item selected for viewing.</SheetDescription>
+						<SheetDescription>
+							No item selected for viewing.
+						</SheetDescription>
 					</SheetHeader>
 
-					<div className="flex items-center justify-center h-[calc(100vh-200px)] mt-6">
-						<div className="text-center text-muted-foreground">
-							<p className="text-lg font-medium mb-2">No Item Selected</p>
-							<p className="text-sm">
+					<div className='flex items-center justify-center h-[calc(100vh-200px)] mt-6'>
+						<div className='text-center text-muted-foreground'>
+							<p className='text-lg font-medium mb-2'>
+								No Item Selected
+							</p>
+							<p className='text-sm'>
 								Please select an item to view its details.
 							</p>
 						</div>
 					</div>
 
-					<SheetFooter className="mt-6">
-						<Button type="button" variant="outline" onClick={onClose}>
+					<SheetFooter className='mt-6'>
+						<Button
+							type='button'
+							variant='outline'
+							onClick={onClose}
+						>
 							Close
 						</Button>
 					</SheetFooter>
@@ -427,27 +480,27 @@ export function DataTableViewDialog<T>({
 	}
 
 	const renderValue = (value: any, cellType?: string) => {
-		if (value === null || value === undefined) return "—";
+		if (value === null || value === undefined) return '—';
 
 		switch (cellType) {
-			case "date":
+			case 'date':
 				return new Date(value).toLocaleDateString();
-			case "currency":
-				return typeof value === "number"
-					? value.toLocaleString("id-ID", {
-							style: "currency",
-							currency: "IDR",
+			case 'currency':
+				return typeof value === 'number'
+					? value.toLocaleString('id-ID', {
+							style: 'currency',
+							currency: 'IDR',
 						})
 					: value;
-			case "status":
+			case 'status':
 				return (
 					<span
 						className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-							value === "active"
-								? "bg-green-100 text-green-800"
-								: value === "inactive"
-									? "bg-red-100 text-red-800"
-									: "bg-gray-100 text-gray-800"
+							value === 'active'
+								? 'bg-green-100 text-green-800'
+								: value === 'inactive'
+									? 'bg-red-100 text-red-800'
+									: 'bg-gray-100 text-gray-800'
 						}`}
 					>
 						{String(value)}
@@ -463,17 +516,20 @@ export function DataTableViewDialog<T>({
 			// Show all columns in view dialog (including detailsOnly columns)
 			// but exclude actions and select columns
 			return columns.filter(
-				(col) => col.accessorKey !== "actions" && col.accessorKey !== "select",
+				(col) =>
+					col.accessorKey !== 'actions' &&
+					col.accessorKey !== 'select'
 			);
 		}
 
 		// If no columns provided, show all item properties
 		return Object.keys(item as Record<string, any>)
-			.filter((key) => key !== "id")
+			.filter((key) => key !== 'id')
 			.map((key) => ({
 				accessorKey: key,
 				headerLabel:
-					key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, " $1"),
+					key.charAt(0).toUpperCase() +
+					key.slice(1).replace(/([A-Z])/g, ' $1'),
 			}));
 	};
 
@@ -487,19 +543,20 @@ export function DataTableViewDialog<T>({
 					</SheetDescription>
 				</SheetHeader>
 
-				<ScrollArea className="h-[calc(100vh-200px)] mt-6">
-					<div className="space-y-4 p-4">
+				<ScrollArea className='h-[calc(100vh-200px)] mt-6'>
+					<div className='space-y-4 p-4'>
 						{getDisplayColumns().map((column: any) => {
 							const value = (item as any)[column.accessorKey];
 							return (
 								<div
 									key={column.accessorKey}
-									className="grid grid-cols-3 gap-4 py-2 border-b"
+									className='grid grid-cols-3 gap-4 py-2 border-b'
 								>
-									<div className="font-medium text-sm text-muted-foreground capitalize">
-										{column.headerLabel || column.accessorKey}
+									<div className='font-medium text-sm text-muted-foreground capitalize'>
+										{column.headerLabel ||
+											column.accessorKey}
 									</div>
-									<div className="col-span-2 text-sm">
+									<div className='col-span-2 text-sm'>
 										{renderValue(value, column.cellType)}
 									</div>
 								</div>
@@ -508,8 +565,8 @@ export function DataTableViewDialog<T>({
 					</div>
 				</ScrollArea>
 
-				<SheetFooter className="mt-6">
-					<Button type="button" variant="outline" onClick={onClose}>
+				<SheetFooter className='mt-6'>
+					<Button type='button' variant='outline' onClick={onClose}>
 						Close
 					</Button>
 				</SheetFooter>
@@ -539,7 +596,7 @@ export function DataTableDeleteDialog<T>({
 			await onConfirm();
 			onClose();
 		} catch (error) {
-			console.error("Delete error:", error);
+			console.error('Delete error:', error);
 		} finally {
 			setIsDeleting(false);
 		}
@@ -551,22 +608,22 @@ export function DataTableDeleteDialog<T>({
 				<SheetHeader>
 					<SheetTitle>Confirm Deletion</SheetTitle>
 					<SheetDescription>
-						Are you sure you want to delete this record? This action cannot be
-						undone.
+						Are you sure you want to delete this record? This action
+						cannot be undone.
 					</SheetDescription>
 				</SheetHeader>
 
-				<SheetFooter className="mt-6">
-					<Button type="button" variant="outline" onClick={onClose}>
+				<SheetFooter className='mt-6'>
+					<Button type='button' variant='outline' onClick={onClose}>
 						Cancel
 					</Button>
 					<Button
-						type="button"
-						variant="destructive"
+						type='button'
+						variant='destructive'
 						onClick={handleConfirm}
 						disabled={isDeleting}
 					>
-						{isDeleting ? "Deleting..." : "Delete"}
+						{isDeleting ? 'Deleting...' : 'Delete'}
 					</Button>
 				</SheetFooter>
 			</SheetContent>

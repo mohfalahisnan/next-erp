@@ -1,7 +1,9 @@
 # Warehouse Management System - Database Design
 
 ## 1. Product Overview
+
 A comprehensive warehouse management system that handles multi-location inventory, product pricing, employee management, shipping operations, and inter-warehouse transfers.
+
 - Manages products with wholesale pricing and real-time inventory tracking across multiple warehouse locations
 - Provides role-based employee access control and comprehensive shipping/logistics management
 - Enables seamless inter-warehouse product transfers and complete order fulfillment workflows
@@ -23,15 +25,18 @@ A comprehensive warehouse management system that handles multi-location inventor
 ## 3. Core Features
 
 ### 3.1 User Roles
-| Role | Registration Method | Core Permissions |
-|------|---------------------|------------------|
-| Warehouse Manager | Admin assignment | Full warehouse operations, inventory management, employee oversight |
-| Inventory Clerk | Manager assignment | Product management, stock updates, transfer operations |
-| Shipping Coordinator | Manager assignment | Order fulfillment, shipping management, logistics coordination |
-| System Administrator | System-level access | User management, system configuration, cross-warehouse oversight |
+
+| Role                 | Registration Method | Core Permissions                                                    |
+| -------------------- | ------------------- | ------------------------------------------------------------------- |
+| Warehouse Manager    | Admin assignment    | Full warehouse operations, inventory management, employee oversight |
+| Inventory Clerk      | Manager assignment  | Product management, stock updates, transfer operations              |
+| Shipping Coordinator | Manager assignment  | Order fulfillment, shipping management, logistics coordination      |
+| System Administrator | System-level access | User management, system configuration, cross-warehouse oversight    |
 
 ### 3.2 Feature Module
+
 Our warehouse management system consists of the following main pages:
+
 1. **Dashboard**: Real-time inventory overview, low stock alerts, pending transfers, shipping status
 2. **Product Management**: Product catalog, pricing management, category organization, supplier information
 3. **Inventory Control**: Stock levels, warehouse locations, inventory movements, stock adjustments
@@ -41,31 +46,33 @@ Our warehouse management system consists of the following main pages:
 7. **Reports & Analytics**: Inventory reports, transfer history, shipping analytics, performance metrics
 
 ### 3.3 Page Details
-| Page Name | Module Name | Feature description |
-|-----------|-------------|---------------------|
-| Dashboard | Inventory Overview | Display real-time stock levels across all warehouses, low stock alerts, pending operations |
-| Dashboard | Transfer Status | Show active transfers, pending approvals, transfer completion rates |
-| Dashboard | Shipping Summary | Track outbound shipments, delivery status, shipping performance metrics |
-| Product Management | Product Catalog | Create, edit, delete products with SKU, descriptions, categories, wholesale prices |
-| Product Management | Pricing Control | Manage wholesale prices, bulk pricing, price history, supplier costs |
-| Product Management | Supplier Management | Maintain supplier information, contact details, product associations |
-| Inventory Control | Stock Tracking | Real-time inventory levels, location tracking, stock movements |
-| Inventory Control | Stock Adjustments | Manual stock corrections, cycle counting, inventory reconciliation |
-| Inventory Control | Location Management | Warehouse zones, bin locations, storage capacity management |
-| Transfer Management | Transfer Requests | Create transfer requests between warehouses, approval workflows |
-| Transfer Management | Transfer Tracking | Monitor transfer status, shipping details, receipt confirmation |
-| Transfer Management | Transfer History | Complete transfer logs, performance analytics, audit trails |
-| Shipping Operations | Order Processing | Process customer orders, pick lists, packing slips |
-| Shipping Operations | Carrier Management | Shipping carrier setup, rate management, service options |
-| Shipping Operations | Delivery Tracking | Track shipments, delivery confirmation, customer notifications |
-| Employee Management | User Roles | Assign warehouse roles, permission management, access control |
-| Employee Management | Activity Logs | Track user actions, inventory changes, system access logs |
-| Reports & Analytics | Inventory Reports | Stock reports, turnover analysis, valuation reports |
-| Reports & Analytics | Performance Metrics | Transfer efficiency, shipping performance, employee productivity |
+
+| Page Name           | Module Name         | Feature description                                                                        |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------ |
+| Dashboard           | Inventory Overview  | Display real-time stock levels across all warehouses, low stock alerts, pending operations |
+| Dashboard           | Transfer Status     | Show active transfers, pending approvals, transfer completion rates                        |
+| Dashboard           | Shipping Summary    | Track outbound shipments, delivery status, shipping performance metrics                    |
+| Product Management  | Product Catalog     | Create, edit, delete products with SKU, descriptions, categories, wholesale prices         |
+| Product Management  | Pricing Control     | Manage wholesale prices, bulk pricing, price history, supplier costs                       |
+| Product Management  | Supplier Management | Maintain supplier information, contact details, product associations                       |
+| Inventory Control   | Stock Tracking      | Real-time inventory levels, location tracking, stock movements                             |
+| Inventory Control   | Stock Adjustments   | Manual stock corrections, cycle counting, inventory reconciliation                         |
+| Inventory Control   | Location Management | Warehouse zones, bin locations, storage capacity management                                |
+| Transfer Management | Transfer Requests   | Create transfer requests between warehouses, approval workflows                            |
+| Transfer Management | Transfer Tracking   | Monitor transfer status, shipping details, receipt confirmation                            |
+| Transfer Management | Transfer History    | Complete transfer logs, performance analytics, audit trails                                |
+| Shipping Operations | Order Processing    | Process customer orders, pick lists, packing slips                                         |
+| Shipping Operations | Carrier Management  | Shipping carrier setup, rate management, service options                                   |
+| Shipping Operations | Delivery Tracking   | Track shipments, delivery confirmation, customer notifications                             |
+| Employee Management | User Roles          | Assign warehouse roles, permission management, access control                              |
+| Employee Management | Activity Logs       | Track user actions, inventory changes, system access logs                                  |
+| Reports & Analytics | Inventory Reports   | Stock reports, turnover analysis, valuation reports                                        |
+| Reports & Analytics | Performance Metrics | Transfer efficiency, shipping performance, employee productivity                           |
 
 ## 4. Order Approval Workflow
 
 ### 4.1 Order Approval Process
+
 All orders in the warehouse management system require approval before processing to ensure inventory control and authorization:
 
 1. **Order Creation**: Orders are created with status 'PENDING' and approval_status 'PENDING'
@@ -75,6 +82,7 @@ All orders in the warehouse management system require approval before processing
 5. **Rejection Handling**: Rejected orders include approval_notes explaining the reason
 
 ### 4.2 Approval Permissions
+
 - **Warehouse Manager**: Can approve all orders for their assigned warehouses
 - **System Administrator**: Can approve orders across all warehouses
 - **Inventory Clerk**: Can view order details but cannot approve
@@ -83,18 +91,21 @@ All orders in the warehouse management system require approval before processing
 ## 5. Core Process
 
 ### Warehouse Manager Flow
+
 1. Access dashboard to review overall warehouse operations and key metrics
 2. Monitor inventory levels and approve stock adjustments or transfers
 3. Oversee employee activities and manage warehouse assignments
 4. Review reports and analytics for operational optimization
 
 ### Inventory Clerk Flow
+
 1. Update product information and manage stock levels
 2. Process incoming inventory and record stock movements
 3. Create transfer requests between warehouses
 4. Perform cycle counts and inventory reconciliation
 
 ### Shipping Coordinator Flow
+
 1. Process customer orders and generate pick lists
 2. Coordinate with carriers and manage shipping schedules
 3. Track shipments and update delivery status
@@ -121,6 +132,7 @@ graph TD
 ## 6. User Interface Design
 
 ### 6.1 Design Style
+
 - **Primary Colors**: Deep blue (#1e40af) for headers and primary actions, light blue (#3b82f6) for secondary elements
 - **Secondary Colors**: Green (#10b981) for success states, orange (#f59e0b) for warnings, red (#ef4444) for alerts
 - **Button Style**: Rounded corners (8px), solid fills for primary actions, outlined for secondary actions
@@ -129,19 +141,21 @@ graph TD
 - **Icons**: Lucide icons for consistency, warehouse-specific icons for inventory and shipping
 
 ### 6.2 Page Design Overview
-| Page Name | Module Name | UI Elements |
-|-----------|-------------|-------------|
-| Dashboard | Inventory Overview | Grid layout with metric cards, color-coded stock levels, progress bars for capacity |
-| Dashboard | Transfer Status | Timeline view for transfers, status badges, progress indicators |
-| Product Management | Product Catalog | Data table with search/filter, modal forms for editing, image upload for products |
-| Product Management | Pricing Control | Tabbed interface for price types, inline editing, price history charts |
-| Inventory Control | Stock Tracking | Real-time updating tables, location hierarchy tree, stock level indicators |
-| Transfer Management | Transfer Requests | Wizard-style form, warehouse selection dropdowns, quantity inputs with validation |
-| Shipping Operations | Order Processing | Split-pane layout, drag-drop for pick lists, barcode scanning interface |
-| Employee Management | User Roles | Role matrix table, permission toggles, warehouse assignment multi-select |
-| Reports & Analytics | Performance Metrics | Interactive charts, date range pickers, export functionality |
+
+| Page Name           | Module Name         | UI Elements                                                                         |
+| ------------------- | ------------------- | ----------------------------------------------------------------------------------- |
+| Dashboard           | Inventory Overview  | Grid layout with metric cards, color-coded stock levels, progress bars for capacity |
+| Dashboard           | Transfer Status     | Timeline view for transfers, status badges, progress indicators                     |
+| Product Management  | Product Catalog     | Data table with search/filter, modal forms for editing, image upload for products   |
+| Product Management  | Pricing Control     | Tabbed interface for price types, inline editing, price history charts              |
+| Inventory Control   | Stock Tracking      | Real-time updating tables, location hierarchy tree, stock level indicators          |
+| Transfer Management | Transfer Requests   | Wizard-style form, warehouse selection dropdowns, quantity inputs with validation   |
+| Shipping Operations | Order Processing    | Split-pane layout, drag-drop for pick lists, barcode scanning interface             |
+| Employee Management | User Roles          | Role matrix table, permission toggles, warehouse assignment multi-select            |
+| Reports & Analytics | Performance Metrics | Interactive charts, date range pickers, export functionality                        |
 
 ### 6.3 Responsiveness
+
 Desktop-first design with mobile-adaptive layouts for warehouse floor operations. Touch-optimized interfaces for barcode scanning and inventory updates on tablets and mobile devices.
 
 ## 7. Database Schema Design
@@ -149,6 +163,7 @@ Desktop-first design with mobile-adaptive layouts for warehouse floor operations
 ### 7.1 Core Tables
 
 #### Warehouses
+
 ```sql
 CREATE TABLE warehouses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -170,6 +185,7 @@ CREATE TABLE warehouses (
 ```
 
 #### Products
+
 ```sql
 CREATE TABLE products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -189,6 +205,7 @@ CREATE TABLE products (
 ```
 
 #### Product Categories
+
 ```sql
 CREATE TABLE product_categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -201,6 +218,7 @@ CREATE TABLE product_categories (
 ```
 
 #### Suppliers
+
 ```sql
 CREATE TABLE suppliers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -221,6 +239,7 @@ CREATE TABLE suppliers (
 ```
 
 #### Product Variants
+
 ```sql
 CREATE TABLE product_variants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -245,6 +264,7 @@ CREATE TABLE product_variants (
 ```
 
 #### Inventory
+
 ```sql
 CREATE TABLE inventory (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -263,6 +283,7 @@ CREATE TABLE inventory (
 ```
 
 #### Inventory Movements
+
 ```sql
 CREATE TABLE inventory_movements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -279,6 +300,7 @@ CREATE TABLE inventory_movements (
 ```
 
 #### Transfers
+
 ```sql
 CREATE TABLE transfers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -297,6 +319,7 @@ CREATE TABLE transfers (
 ```
 
 #### Transfer Items
+
 ```sql
 CREATE TABLE transfer_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -310,6 +333,7 @@ CREATE TABLE transfer_items (
 ```
 
 #### Customers
+
 ```sql
 CREATE TABLE customers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -327,6 +351,7 @@ CREATE TABLE customers (
 ```
 
 #### Customer Addresses
+
 ```sql
 CREATE TABLE customer_addresses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -346,6 +371,7 @@ CREATE TABLE customer_addresses (
 ```
 
 #### Orders
+
 ```sql
 CREATE TABLE orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -375,6 +401,7 @@ CREATE TABLE orders (
 ```
 
 #### Order Items
+
 ```sql
 CREATE TABLE order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -388,6 +415,7 @@ CREATE TABLE order_items (
 ```
 
 #### Shipments
+
 ```sql
 CREATE TABLE shipments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -409,6 +437,7 @@ CREATE TABLE shipments (
 ```
 
 #### Carriers
+
 ```sql
 CREATE TABLE carriers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

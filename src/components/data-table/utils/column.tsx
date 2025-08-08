@@ -1,6 +1,6 @@
-import type { ColumnDef, FilterFn } from "@tanstack/react-table";
-import type { DateRange } from "react-day-picker";
-import type { TableConfig } from "../data-table";
+import type { ColumnDef, FilterFn } from '@tanstack/react-table';
+import type { DateRange } from 'react-day-picker';
+import type { TableConfig } from '../data-table';
 import {
 	CellAction,
 	CellBoolean,
@@ -10,8 +10,8 @@ import {
 	CellSelect,
 	CellStatus,
 	CellText,
-} from "../data-table-cell";
-import { DataTableHead, HeaderSelect } from "../data-table-head";
+} from '../data-table-cell';
+import { DataTableHead, HeaderSelect } from '../data-table-head';
 
 // Custom filter function for date range
 const dateRangeFilter: FilterFn<any> = (row, columnId, value: DateRange) => {
@@ -44,7 +44,7 @@ const dateRangeFilter: FilterFn<any> = (row, columnId, value: DateRange) => {
 const rangeFilter: FilterFn<any> = (
 	row,
 	columnId,
-	value: { min?: number; max?: number },
+	value: { min?: number; max?: number }
 ) => {
 	if (!value || (value.min === undefined && value.max === undefined))
 		return true;
@@ -76,7 +76,7 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 	// Add select column if withSelect is true
 	if (config.withSelect) {
 		finalColumns.push({
-			id: "select",
+			id: 'select',
 			header: (props) => <HeaderSelect {...props} />,
 			cell: (props) => <CellSelect {...props} />,
 			enableSorting: false,
@@ -102,56 +102,56 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 			);
 		} else {
 			switch (column.cellType) {
-				case "enum":
+				case 'enum':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellEnum {...props} />
 						</div>
 					);
 					break;
-				case "currency":
+				case 'currency':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellCurrrency {...props} />
 						</div>
 					);
 					break;
-				case "action":
+				case 'action':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellAction {...props} />
 						</div>
 					);
 					break;
-				case "date":
+				case 'date':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellDate {...props} />
 						</div>
 					);
 					break;
-				case "status":
+				case 'status':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellStatus {...props} />
 						</div>
 					);
 					break;
-				case "text":
+				case 'text':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellText {...props} />
 						</div>
 					);
 					break;
-				case "boolean":
+				case 'boolean':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellBoolean {...props} />
 						</div>
 					);
 					break;
-				case "select":
+				case 'select':
 					columnDef.cell = (props) => (
 						<div {...column.cellProps}>
 							<CellSelect {...props} />
@@ -182,11 +182,13 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 			);
 		} else if (column.renderHeader) {
 			columnDef.header = (props) => (
-				<div {...column.headerProps}>{column.renderHeader?.(props)}</div>
+				<div {...column.headerProps}>
+					{column.renderHeader?.(props)}
+				</div>
 			);
 		} else {
 			switch (column.cellType) {
-				case "select":
+				case 'select':
 					columnDef.header = (props) => (
 						<div {...column.headerProps}>
 							<HeaderSelect {...props} />
@@ -195,9 +197,12 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 					break;
 				default:
 					// Use existing header if provided, otherwise default to DataTableHead
-					if (column.header && typeof column.header === "function") {
+					if (column.header && typeof column.header === 'function') {
 						columnDef.header = column.header;
-					} else if (column.header && typeof column.header === "string") {
+					} else if (
+						column.header &&
+						typeof column.header === 'string'
+					) {
 						const headerText = column.header;
 						columnDef.header = (_props) => (
 							<div {...column.headerProps}>{headerText}</div>
@@ -214,9 +219,9 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 		}
 
 		// Set filterFn based on headerFilterType
-		if (column.headerFilterType === "range") {
+		if (column.headerFilterType === 'range') {
 			columnDef.filterFn = rangeFilter;
-		} else if (column.headerFilterType === "dateRange") {
+		} else if (column.headerFilterType === 'dateRange') {
 			columnDef.filterFn = dateRangeFilter;
 		}
 
@@ -226,8 +231,8 @@ export function createColumns<T>(config: TableConfig<T>): ColumnDef<T>[] {
 	// Add action column if withActions is true
 	if (config.withActions) {
 		finalColumns.push({
-			id: "actions",
-			header: () => <div className="text-right">Actions</div>,
+			id: 'actions',
+			header: () => <div className='text-right'>Actions</div>,
 			cell: (props) => <CellAction {...props} />,
 			enableHiding: false,
 			enableSorting: false,

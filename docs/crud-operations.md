@@ -9,6 +9,7 @@ The API supports full CRUD operations for all models defined in your Prisma sche
 ## API Endpoints
 
 ### Base URL Pattern
+
 ```
 /api/[model]
 /api/[model]/[id]
@@ -16,14 +17,14 @@ The API supports full CRUD operations for all models defined in your Prisma sche
 
 ### Supported HTTP Methods
 
-| Method | Endpoint | Purpose | ID Required |
-|--------|----------|---------|-------------|
-| GET | `/api/[model]` | Fetch all records | No |
-| GET | `/api/[model]/[id]` | Fetch single record | Yes |
-| POST | `/api/[model]` | Create new record | No |
-| PUT | `/api/[model]/[id]` | Full update of record | Yes |
-| PATCH | `/api/[model]/[id]` | Partial update of record | Yes |
-| DELETE | `/api/[model]/[id]` | Delete record | Yes |
+| Method | Endpoint            | Purpose                  | ID Required |
+| ------ | ------------------- | ------------------------ | ----------- |
+| GET    | `/api/[model]`      | Fetch all records        | No          |
+| GET    | `/api/[model]/[id]` | Fetch single record      | Yes         |
+| POST   | `/api/[model]`      | Create new record        | No          |
+| PUT    | `/api/[model]/[id]` | Full update of record    | Yes         |
+| PATCH  | `/api/[model]/[id]` | Partial update of record | Yes         |
+| DELETE | `/api/[model]/[id]` | Delete record            | Yes         |
 
 ## Operation Details
 
@@ -35,12 +36,14 @@ The API supports full CRUD operations for all models defined in your Prisma sche
 
 **Request Body:** JSON object with the data for the new record.
 
-**Response:** 
+**Response:**
+
 - **Success (201):** Created record with optional populated relations
 - **Error (400):** Validation errors or database constraints
 - **Error (404):** Invalid model name
 
 **Example:**
+
 ```javascript
 // Create a new user
 POST /api/user
@@ -54,27 +57,32 @@ Content-Type: application/json
 ```
 
 **With Populate:**
+
 ```javascript
 POST /api/user?populate=role
 ```
 
 ### 2. READ (GET)
 
-**Endpoint:** 
+**Endpoint:**
+
 - `GET /api/[model]` - Fetch all records
 - `GET /api/[model]/[id]` - Fetch single record
 
 **Purpose:** Retrieve records from the specified model.
 
 **Query Parameters:**
+
 - `populate`: Comma-separated list of relations to include
 - `depth`: Maximum depth for nested relations (default: 1)
 
 **Response:**
+
 - **Success (200):** Record(s) with optional populated relations
 - **Error (404):** Record not found (for single record) or invalid model
 
 **Examples:**
+
 ```javascript
 // Get all users
 GET /api/user
@@ -95,11 +103,13 @@ GET /api/user/123?populate=role,department&depth=2
 **Request Body:** JSON object with the complete updated data.
 
 **Response:**
+
 - **Success (200):** Updated record with optional populated relations
 - **Error (400):** ID required, validation errors, or database constraints
 - **Error (404):** Record not found or invalid model
 
 **Example:**
+
 ```javascript
 // Update entire user record
 PUT /api/user/123
@@ -113,6 +123,7 @@ Content-Type: application/json
 ```
 
 **With Populate:**
+
 ```javascript
 PUT /api/user/123?populate=role,department
 ```
@@ -126,11 +137,13 @@ PUT /api/user/123?populate=role,department
 **Request Body:** JSON object with only the fields to update.
 
 **Response:**
+
 - **Success (200):** Updated record with optional populated relations
 - **Error (400):** ID required, validation errors, or database constraints
 - **Error (404):** Record not found or invalid model
 
 **Example:**
+
 ```javascript
 // Update only the name field
 PATCH /api/user/123
@@ -148,14 +161,16 @@ Content-Type: application/json
 **Purpose:** Remove a record from the database.
 
 **Response:**
+
 - **Success (200):** Confirmation message
 - **Error (400):** ID required
 - **Error (404):** Record not found or invalid model
 
 **Example:**
+
 ```javascript
 // Delete user
-DELETE /api/user/123
+DELETE / api / user / 123;
 ```
 
 ## Response Format
@@ -190,17 +205,20 @@ All responses follow a consistent format:
 All CRUD operations (except DELETE) support the populate and depth parameters:
 
 ### Populate Parameter
+
 - **Format:** `?populate=relation1,relation2,relation3`
 - **Purpose:** Include related data in the response
 - **Example:** `?populate=role,department,manager`
 
 ### Depth Parameter
+
 - **Format:** `?depth=2`
 - **Purpose:** Control how deep nested relations are fetched
 - **Default:** 1
 - **Example:** `?populate=department&depth=2` (includes department and department's relations)
 
 ### Combined Usage
+
 ```javascript
 // Create user with populated role
 POST /api/user?populate=role
@@ -217,36 +235,40 @@ PATCH /api/user/123?populate=role,department,manager
 ### Common Error Scenarios
 
 1. **Invalid Model Name (404)**
-   ```javascript
-   GET /api/invalidmodel
-   // Returns: Model not found error
-   ```
+
+    ```javascript
+    GET / api / invalidmodel;
+    // Returns: Model not found error
+    ```
 
 2. **Missing ID for Update/Delete (400)**
-   ```javascript
-   PUT /api/user
-   // Returns: ID is required error
-   ```
+
+    ```javascript
+    PUT / api / user;
+    // Returns: ID is required error
+    ```
 
 3. **Record Not Found (404)**
-   ```javascript
-   GET /api/user/nonexistent
-   // Returns: Record not found error
-   ```
+
+    ```javascript
+    GET / api / user / nonexistent;
+    // Returns: Record not found error
+    ```
 
 4. **Validation Errors (400)**
-   ```javascript
-   POST /api/user
-   { "email": "invalid-email" }
-   // Returns: Validation error
-   ```
+
+    ```javascript
+    POST /api/user
+    { "email": "invalid-email" }
+    // Returns: Validation error
+    ```
 
 5. **Database Constraints (400)**
-   ```javascript
-   POST /api/user
-   { "email": "existing@email.com" }
-   // Returns: Unique constraint error
-   ```
+    ```javascript
+    POST /api/user
+    { "email": "existing@email.com" }
+    // Returns: Unique constraint error
+    ```
 
 ## Usage Examples
 
@@ -255,13 +277,13 @@ PATCH /api/user/123?populate=role,department,manager
 ```javascript
 // 1. Create a new user
 const createResponse = await fetch('/api/user', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Alice Johnson',
-    email: 'alice@example.com',
-    password: 'securepass123'
-  })
+	method: 'POST',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({
+		name: 'Alice Johnson',
+		email: 'alice@example.com',
+		password: 'securepass123',
+	}),
 });
 const newUser = await createResponse.json();
 const userId = newUser.data.id;
@@ -272,25 +294,25 @@ const userWithRelations = await getResponse.json();
 
 // 3. Update user's name
 const patchResponse = await fetch(`/api/user/${userId}`, {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ name: 'Alice Smith' })
+	method: 'PATCH',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({ name: 'Alice Smith' }),
 });
 
 // 4. Full update of user
 const putResponse = await fetch(`/api/user/${userId}`, {
-  method: 'PUT',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Alice Smith-Johnson',
-    email: 'alice.smith@example.com',
-    password: 'newpassword123'
-  })
+	method: 'PUT',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({
+		name: 'Alice Smith-Johnson',
+		email: 'alice.smith@example.com',
+		password: 'newpassword123',
+	}),
 });
 
 // 5. Delete the user
 const deleteResponse = await fetch(`/api/user/${userId}`, {
-  method: 'DELETE'
+	method: 'DELETE',
 });
 ```
 
@@ -299,19 +321,19 @@ const deleteResponse = await fetch(`/api/user/${userId}`, {
 ```javascript
 // Create department
 const dept = await fetch('/api/department', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    name: 'Engineering',
-    description: 'Software development team'
-  })
+	method: 'POST',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({
+		name: 'Engineering',
+		description: 'Software development team',
+	}),
 });
 
 // Update department with manager relation
 const updatedDept = await fetch(`/api/department/${deptId}?populate=manager`, {
-  method: 'PATCH',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ managerId: 'manager-id-123' })
+	method: 'PATCH',
+	headers: { 'Content-Type': 'application/json' },
+	body: JSON.stringify({ managerId: 'manager-id-123' }),
 });
 ```
 
@@ -358,23 +380,23 @@ npm run test:populate-id # GET with populate tests
 ### Common Issues
 
 1. **"Model not found" error**
-   - Verify the model name matches your Prisma schema
-   - Check that the model is properly exported in your database configuration
+    - Verify the model name matches your Prisma schema
+    - Check that the model is properly exported in your database configuration
 
 2. **"ID is required" error**
-   - Ensure you're including the ID in the URL for PUT, PATCH, and DELETE operations
-   - Verify the ID format matches your database ID type
+    - Ensure you're including the ID in the URL for PUT, PATCH, and DELETE operations
+    - Verify the ID format matches your database ID type
 
 3. **Validation errors**
-   - Check that required fields are included in your request body
-   - Verify data types match your Prisma schema definitions
+    - Check that required fields are included in your request body
+    - Verify data types match your Prisma schema definitions
 
 4. **Populate not working**
-   - Ensure relation names match your Prisma schema
-   - Check that the relations are properly defined in `modelRelations`
+    - Ensure relation names match your Prisma schema
+    - Check that the relations are properly defined in `modelRelations`
 
 5. **Server errors (500)**
-   - Check server logs for detailed error information
-   - Verify database connection and schema migrations
+    - Check server logs for detailed error information
+    - Verify database connection and schema migrations
 
 For additional support, refer to the test files and examples in the project repository.

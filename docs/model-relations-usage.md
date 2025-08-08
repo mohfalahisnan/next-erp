@@ -32,11 +32,13 @@ GET /api/product?depth=2
 Here are the currently available relations for each model:
 
 ### User Relations
+
 ```
 user: ['role', 'department', 'managedDepartments', 'managedProjects', 'Warehouse', 'sessions', 'accounts']
 ```
 
 **Examples:**
+
 ```bash
 # Get user with role and department
 GET /api/user?populate=role,department
@@ -49,6 +51,7 @@ GET /api/user?depth=2
 ```
 
 ### Product Relations
+
 ```
 product: ['category', 'supplier', 'productVariants']
 productvariant: ['product', 'inventory', 'inventoryMovements', 'transferItems', 'orderItems']
@@ -56,6 +59,7 @@ productcategory: ['parent', 'children', 'products']
 ```
 
 **Examples:**
+
 ```bash
 # Product catalog with categories and suppliers
 GET /api/product?populate=category,supplier,productVariants&depth=2
@@ -68,6 +72,7 @@ GET /api/productcategory?populate=parent,children&depth=3
 ```
 
 ### Warehouse Relations
+
 ```
 warehouse: ['manager', 'inventory', 'inventoryMovements', 'transfersFrom', 'transfersTo']
 inventory: ['warehouse', 'productVariant']
@@ -75,6 +80,7 @@ inventorymovement: ['warehouse', 'productVariant']
 ```
 
 **Examples:**
+
 ```bash
 # Warehouse overview
 GET /api/warehouse?populate=manager,inventory&depth=2
@@ -87,6 +93,7 @@ GET /api/inventorymovement?populate=warehouse,productVariant&depth=1
 ```
 
 ### Order Relations
+
 ```
 order: ['customer', 'orderItems', 'shipments']
 orderitem: ['order', 'productVariant']
@@ -94,6 +101,7 @@ customer: ['addresses', 'orders']
 ```
 
 **Examples:**
+
 ```bash
 # Order details
 GET /api/order?populate=customer,orderItems,shipments&depth=2
@@ -106,6 +114,7 @@ GET /api/orderitem?populate=order,productVariant&depth=2
 ```
 
 ### Department & Role Relations
+
 ```
 department: ['manager', 'users', 'projects', 'roles']
 role: ['department', 'users']
@@ -113,6 +122,7 @@ project: ['department', 'manager']
 ```
 
 **Examples:**
+
 ```bash
 # Department overview
 GET /api/department?populate=manager,users,projects&depth=2
@@ -177,6 +187,7 @@ GET /api/order?populate=orderItems,customer,shipments&depth=2
 ## Performance Tips
 
 ### 1. Be Specific
+
 ```bash
 # ✅ Good: Only what you need
 GET /api/user?populate=role,department&depth=1
@@ -186,6 +197,7 @@ GET /api/user?depth=5
 ```
 
 ### 2. Use Appropriate Depth
+
 ```bash
 # ✅ Good: Reasonable depth
 GET /api/product?populate=category&depth=2
@@ -195,6 +207,7 @@ GET /api/product?populate=category&depth=5
 ```
 
 ### 3. Consider Pagination
+
 ```bash
 # ✅ Good: Paginated with relations
 GET /api/user?populate=role&depth=1&page=1&limit=20
@@ -216,60 +229,65 @@ The system automatically validates relations:
 ### Relations Not Working
 
 1. **Check if relations exist**:
-   ```bash
-   # Test with a simple relation first
-   GET /api/user?populate=role
-   ```
+
+    ```bash
+    # Test with a simple relation first
+    GET /api/user?populate=role
+    ```
 
 2. **Verify model name**:
-   ```bash
-   # Use lowercase model names
-   GET /api/user  # ✅ Correct
-   GET /api/User  # ❌ Wrong
-   ```
+
+    ```bash
+    # Use lowercase model names
+    GET /api/user  # ✅ Correct
+    GET /api/User  # ❌ Wrong
+    ```
 
 3. **Check relation names**:
-   ```bash
-   # Use exact field names from schema
-   GET /api/user?populate=role          # ✅ Correct
-   GET /api/user?populate=userRole      # ❌ Wrong
-   ```
+    ```bash
+    # Use exact field names from schema
+    GET /api/user?populate=role          # ✅ Correct
+    GET /api/user?populate=userRole      # ❌ Wrong
+    ```
 
 ### Performance Issues
 
 1. **Reduce depth**:
-   ```bash
-   # Instead of depth=3
-   GET /api/user?populate=role&depth=1
-   ```
+
+    ```bash
+    # Instead of depth=3
+    GET /api/user?populate=role&depth=1
+    ```
 
 2. **Be more specific**:
-   ```bash
-   # Instead of all relations
-   GET /api/user?populate=role,department&depth=1
-   ```
+
+    ```bash
+    # Instead of all relations
+    GET /api/user?populate=role,department&depth=1
+    ```
 
 3. **Use pagination**:
-   ```bash
-   GET /api/user?populate=role&page=1&limit=10
-   ```
+    ```bash
+    GET /api/user?populate=role&page=1&limit=10
+    ```
 
 ### Missing Relations
 
 1. **Regenerate relations**:
-   ```bash
-   npm run generate:relations
-   ```
+
+    ```bash
+    npm run generate:relations
+    ```
 
 2. **Check Prisma schema**:
-   - Ensure `@relation` annotations are present
-   - Verify field names match model names
-   - Check that relations are properly defined
+    - Ensure `@relation` annotations are present
+    - Verify field names match model names
+    - Check that relations are properly defined
 
 3. **Restart development server**:
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```
 
 ## Integration Examples
 
@@ -280,7 +298,7 @@ The system automatically validates relations:
 export const useUserWithRelations = (userId: string) => {
   return useQuery({
     queryKey: ['user', userId, 'relations'],
-    queryFn: () => 
+    queryFn: () =>
       fetch(`/api/user/${userId}?populate=role,department,managedProjects&depth=2`)
         .then(res => res.json())
   });
@@ -289,7 +307,7 @@ export const useUserWithRelations = (userId: string) => {
 // components/UserProfile.tsx
 const UserProfile = ({ userId }: { userId: string }) => {
   const { data: user } = useUserWithRelations(userId);
-  
+
   return (
     <div>
       <h1>{user?.name}</h1>
@@ -309,29 +327,39 @@ const UserProfile = ({ userId }: { userId: string }) => {
 ```typescript
 // lib/api-client.ts
 class ApiClient {
-  async getWithRelations<T>(
-    model: string, 
-    id?: string, 
-    populate?: string[], 
-    depth?: number
-  ): Promise<T> {
-    const params = new URLSearchParams();
-    if (populate?.length) params.set('populate', populate.join(','));
-    if (depth) params.set('depth', depth.toString());
-    
-    const url = id 
-      ? `/api/${model}/${id}?${params}`
-      : `/api/${model}?${params}`;
-    
-    const response = await fetch(url);
-    return response.json();
-  }
+	async getWithRelations<T>(
+		model: string,
+		id?: string,
+		populate?: string[],
+		depth?: number
+	): Promise<T> {
+		const params = new URLSearchParams();
+		if (populate?.length) params.set('populate', populate.join(','));
+		if (depth) params.set('depth', depth.toString());
+
+		const url = id
+			? `/api/${model}/${id}?${params}`
+			: `/api/${model}?${params}`;
+
+		const response = await fetch(url);
+		return response.json();
+	}
 }
 
 // Usage
 const client = new ApiClient();
-const user = await client.getWithRelations('user', '123', ['role', 'department'], 2);
-const products = await client.getWithRelations('product', undefined, ['category', 'supplier'], 1);
+const user = await client.getWithRelations(
+	'user',
+	'123',
+	['role', 'department'],
+	2
+);
+const products = await client.getWithRelations(
+	'product',
+	undefined,
+	['category', 'supplier'],
+	1
+);
 ```
 
 ## Best Practices

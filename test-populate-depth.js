@@ -1,7 +1,11 @@
 // Test script to demonstrate the populate depth feature
 // This script shows how the buildPopulateInclude function works
 
-const { buildPopulateInclude, parsePopulateParams, getModelRelations } = require('./src/lib/populate-utils.ts');
+const {
+	buildPopulateInclude,
+	parsePopulateParams,
+	getModelRelations,
+} = require('./src/lib/populate-utils.ts');
 
 console.log('=== Populate Depth Feature Test ===\n');
 
@@ -44,7 +48,9 @@ console.log();
 
 // Test 7: Parse URL parameters simulation
 console.log('Test 7: URL parameter parsing simulation');
-const mockSearchParams = new URLSearchParams('populate=role,department&depth=2');
+const mockSearchParams = new URLSearchParams(
+	'populate=role,department&depth=2'
+);
 const parsed = parsePopulateParams(mockSearchParams);
 console.log('Parsed params:', parsed);
 console.log();

@@ -1,6 +1,6 @@
-import type { Table } from "@tanstack/react-table";
+import type { Table } from '@tanstack/react-table';
 
-import SelectFilter from "./data-table-select-filter";
+import SelectFilter from './data-table-select-filter';
 
 export interface FilterOptions {
 	accessorKey: string;
@@ -43,11 +43,17 @@ function DataTableFilters({ table, filterOptions }: DataTableFiltersProps) {
 					key={filter.accessorKey}
 					filter={filter}
 					value={
-						table.getColumn(filter.accessorKey)?.getFilterValue() as string
+						table
+							.getColumn(filter.accessorKey)
+							?.getFilterValue() as string
 					}
-					onChange={(value) => handleSelectChange(value, filter.accessorKey)}
+					onChange={(value) =>
+						handleSelectChange(value, filter.accessorKey)
+					}
 					clearFilter={
-						table.getColumn(filter.accessorKey)?.getFilterValue() !== undefined
+						table
+							.getColumn(filter.accessorKey)
+							?.getFilterValue() !== undefined
 					}
 				/>
 			))}

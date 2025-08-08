@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { Table } from '@tanstack/react-table';
 
 import {
 	Pagination,
@@ -8,7 +8,7 @@ import {
 	PaginationLink,
 	PaginationNext,
 	PaginationPrevious,
-} from "../ui/pagination";
+} from '../ui/pagination';
 
 export interface DataTablePaginationProps<TData> {
 	table: Table<TData>;
@@ -34,10 +34,12 @@ function DataTablePagination<TData>({
 	paginationData,
 }: DataTablePaginationProps<TData>) {
 	// Use paginationData if provided, otherwise fall back to table state
-	const currentPage = paginationData?.page ?? table.getState().pagination.pageIndex + 1;
+	const currentPage =
+		paginationData?.page ?? table.getState().pagination.pageIndex + 1;
 	const totalPages = paginationData?.pages ?? table.getPageCount();
 	const totalRows = paginationData?.total ?? table.getRowCount();
-	const pageSize = paginationData?.limit ?? table.getState().pagination.pageSize;
+	const pageSize =
+		paginationData?.limit ?? table.getState().pagination.pageSize;
 
 	// Generate page numbers to display
 	const generatePageNumbers = () => {
@@ -58,7 +60,7 @@ function DataTablePagination<TData>({
 
 			// Add ellipsis after first page if needed
 			if (start > 2) {
-				pages.push("ellipsis-start");
+				pages.push('ellipsis-start');
 			}
 
 			// Add middle pages
@@ -68,7 +70,7 @@ function DataTablePagination<TData>({
 
 			// Add ellipsis before last page if needed
 			if (end < totalPages - 1) {
-				pages.push("ellipsis-end");
+				pages.push('ellipsis-end');
 			}
 
 			// Always show last page
@@ -83,31 +85,32 @@ function DataTablePagination<TData>({
 	const pageNumbers = generatePageNumbers();
 
 	return (
-		<div className="flex items-center justify-between space-x-2 py-4">
+		<div className='flex items-center justify-between space-x-2 py-4'>
 			{showSelectedCount && (
-				<div className="text-muted-foreground flex-1 text-sm">
-					{table.getSelectedRowModel().rows.length} of {totalRows} row(s)
-					selected.
+				<div className='text-muted-foreground flex-1 text-sm'>
+					{table.getSelectedRowModel().rows.length} of {totalRows}{' '}
+					row(s) selected.
 				</div>
 			)}
-			<div className="text-muted-foreground flex items-center gap-2 text-sm">
+			<div className='text-muted-foreground flex items-center gap-2 text-sm'>
 				{showTotalCount && (
 					<span>
-						Page {currentPage} of {totalPages} ({totalRows} total rows)
+						Page {currentPage} of {totalPages} ({totalRows} total
+						rows)
 					</span>
 				)}
 				<select
 					value={pageSize}
 					onChange={(e) => {
-					// Clear row selections when changing page size
-					table.toggleAllRowsSelected(false);
-					table.setPageSize(Number(e.target.value));
-					// Reset to first page when changing page size
-					if (paginationData) {
-						table.setPageIndex(0);
-					}
-				}}
-					className="h-8 rounded-md border border-input bg-background px-2"
+						// Clear row selections when changing page size
+						table.toggleAllRowsSelected(false);
+						table.setPageSize(Number(e.target.value));
+						// Reset to first page when changing page size
+						if (paginationData) {
+							table.setPageIndex(0);
+						}
+					}}
+					className='h-8 rounded-md border border-input bg-background px-2'
 				>
 					{pageSizeOptions.map((size) => (
 						<option key={size} value={size}>
@@ -116,33 +119,41 @@ function DataTablePagination<TData>({
 					))}
 				</select>
 			</div>
-			<div className="space-x-2">
+			<div className='space-x-2'>
 				<Pagination>
 					<PaginationContent>
 						<PaginationItem>
 							<PaginationPrevious
-						onClick={() => {
-							// Clear row selections when navigating
-							table.toggleAllRowsSelected(false);
-							if (paginationData) {
-								// For server-side pagination, check against current page
-								if (currentPage > 1) {
-									table.setPageIndex(currentPage - 2); // Convert to 0-based
+								onClick={() => {
+									// Clear row selections when navigating
+									table.toggleAllRowsSelected(false);
+									if (paginationData) {
+										// For server-side pagination, check against current page
+										if (currentPage > 1) {
+											table.setPageIndex(currentPage - 2); // Convert to 0-based
+										}
+									} else {
+										table.previousPage();
+									}
+								}}
+								aria-disabled={
+									paginationData
+										? currentPage <= 1
+										: !table.getCanPreviousPage()
 								}
-							} else {
-								table.previousPage();
-							}
-						}}
-						aria-disabled={paginationData ? currentPage <= 1 : !table.getCanPreviousPage()}
-						className={
-							(paginationData ? currentPage <= 1 : !table.getCanPreviousPage())
-								? "pointer-events-none opacity-50"
-								: "cursor-pointer"
-						}
-					/>
+								className={
+									(
+										paginationData
+											? currentPage <= 1
+											: !table.getCanPreviousPage()
+									)
+										? 'pointer-events-none opacity-50'
+										: 'cursor-pointer'
+								}
+							/>
 						</PaginationItem>
 						{pageNumbers.map((page) => {
-							if (typeof page === "string") {
+							if (typeof page === 'string') {
 								return (
 									<PaginationItem key={page}>
 										<PaginationEllipsis />
@@ -152,46 +163,54 @@ function DataTablePagination<TData>({
 							return (
 								<PaginationItem key={page}>
 									<PaginationLink
-								onClick={() => {
-									// Clear row selections when navigating
-									table.toggleAllRowsSelected(false);
-									if (paginationData) {
-										// For server-side pagination, use 1-based page index
-										table.setPageIndex(page - 1);
-									} else {
-										// For client-side pagination, use 0-based page index
-										table.setPageIndex(page - 1);
-									}
-								}}
-								isActive={currentPage === page}
-								className="cursor-pointer"
-							>
-								{page}
-							</PaginationLink>
+										onClick={() => {
+											// Clear row selections when navigating
+											table.toggleAllRowsSelected(false);
+											if (paginationData) {
+												// For server-side pagination, use 1-based page index
+												table.setPageIndex(page - 1);
+											} else {
+												// For client-side pagination, use 0-based page index
+												table.setPageIndex(page - 1);
+											}
+										}}
+										isActive={currentPage === page}
+										className='cursor-pointer'
+									>
+										{page}
+									</PaginationLink>
 								</PaginationItem>
 							);
 						})}
 						<PaginationItem>
 							<PaginationNext
-						onClick={() => {
-							// Clear row selections when navigating
-							table.toggleAllRowsSelected(false);
-							if (paginationData) {
-								// For server-side pagination, check against total pages
-								if (currentPage < totalPages) {
-									table.setPageIndex(currentPage); // Convert to 0-based
+								onClick={() => {
+									// Clear row selections when navigating
+									table.toggleAllRowsSelected(false);
+									if (paginationData) {
+										// For server-side pagination, check against total pages
+										if (currentPage < totalPages) {
+											table.setPageIndex(currentPage); // Convert to 0-based
+										}
+									} else {
+										table.nextPage();
+									}
+								}}
+								aria-disabled={
+									paginationData
+										? currentPage >= totalPages
+										: !table.getCanNextPage()
 								}
-							} else {
-								table.nextPage();
-							}
-						}}
-						aria-disabled={paginationData ? currentPage >= totalPages : !table.getCanNextPage()}
-						className={
-							(paginationData ? currentPage >= totalPages : !table.getCanNextPage())
-								? "pointer-events-none opacity-50"
-								: "cursor-pointer"
-						}
-					/>
+								className={
+									(
+										paginationData
+											? currentPage >= totalPages
+											: !table.getCanNextPage()
+									)
+										? 'pointer-events-none opacity-50'
+										: 'cursor-pointer'
+								}
+							/>
 						</PaginationItem>
 					</PaginationContent>
 				</Pagination>

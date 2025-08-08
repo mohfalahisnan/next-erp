@@ -1,6 +1,6 @@
-import type { Table } from "@tanstack/react-table";
+import type { Table } from '@tanstack/react-table';
 
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 
 interface DataTableSearchProps {
 	table: Table<any>;
@@ -10,16 +10,16 @@ interface DataTableSearchProps {
 
 function DataTableSearch({
 	table,
-	placeholder = "Search...",
-	className = "max-w-[160px]",
+	placeholder = 'Search...',
+	className = 'max-w-[160px]',
 }: DataTableSearchProps) {
 	const globalFilter = table.getState().globalFilter as string;
 
 	return (
-		<div className="flex gap-2 items-center">
+		<div className='flex gap-2 items-center'>
 			<Input
 				placeholder={placeholder}
-				value={globalFilter ?? ""}
+				value={globalFilter ?? ''}
 				onChange={(event) => table.setGlobalFilter(event.target.value)}
 				className={className}
 			/>
